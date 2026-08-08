@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphtopic"
-version = "0.0.1"
+version = "0.0.2"
 
 description = "Graph-based topic modeling using semantic graphs"
 
