@@ -32,6 +32,7 @@ class SentenceTransformerEmbedding(
         embeddings = self.model.encode(
             documents,
             normalize_embeddings=self.normalize_embeddings,
+            show_progress_bar=True,
         )
 
         return np.asarray(
