@@ -29,6 +29,11 @@ Invoke-Checked "Full test suite with branch coverage" {
 }
 Invoke-Checked "Offline precomputed example" { & $pythonExe examples\precomputed.py }
 Invoke-Checked "Offline custom-components example" { & $pythonExe examples\custom_components.py }
+$distributionDirectory = Join-Path $repository "dist"
+if (Test-Path -LiteralPath $distributionDirectory) {
+    Write-Host "`n==> Remove previous distribution artifacts"
+    Remove-Item -LiteralPath $distributionDirectory -Recurse -Force
+}
 Invoke-Checked "Build wheel and source distribution" { & $pythonExe -m build }
 Invoke-Checked "Validate distribution metadata" { & $pythonExe -m twine check dist\* }
 Invoke-Checked "Git whitespace check" { git diff --check }

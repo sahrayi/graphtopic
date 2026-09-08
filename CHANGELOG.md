@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 — 2026-09-08
+
+- Update the public README for installation from PyPI and the supported Python versions.
+- Add PyPI, Python, CI, and license status badges.
+- Make repeated publication workflow runs safely ignore existing distributions.
+
 ## 0.1.0 — 2026-09-08
 
 - Replace the Graphion-based legacy implementation with the current paper pipeline.
