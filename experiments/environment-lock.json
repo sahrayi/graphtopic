@@ -1,0 +1,18 @@
+{
+  "python": "3.14.6",
+  "quality_threads": 1,
+  "python_hash_seed": 0,
+  "quality_environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "TOKENIZERS_PARALLELISM": "false"
+  },
+  "requirements": "requirements/experiments-reference.txt",
+  "numerical_scope": "Quality metrics are reproducible in the locked environment; runtimes, RSS, and byte-identical floating-point artifacts are not portable guarantees.",
+  "note": "Scaling intentionally uses available logical processors and is hardware-specific."
+}

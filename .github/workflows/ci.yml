@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  minimum-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -r requirements/minimum.txt
+      - run: python -m pip install -e . --no-deps
+      - run: python -m pytest -m "not optional_embedding"
+
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff check .
+      - run: python -m ruff format --check .
+      - name: Pure unit and contract tests
+        run: python -m pytest -m "not integration and not optional_embedding" --cov=graphtopic --cov-report=term-missing
+      - name: Core backend integration tests
+        run: python -m pytest -m integration
+      - run: python examples/precomputed.py
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - name: Install and smoke-test the built wheel
+        shell: bash
+        run: |
+          python -m pip uninstall -y graphtopic
+          python -m pip install --no-deps dist/*.whl
+          python -I examples/precomputed.py
+          python -I examples/custom_components.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/

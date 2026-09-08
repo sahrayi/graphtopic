@@ -1,0 +1,8 @@
+{
+  "newsgroups_artifact": "PATH/TO/20newsgroups_embeddings.npz",
+  "newsgroups_text": "PATH/TO/20newsgroups_embeddings.csv",
+  "agnews_artifact": "PATH/TO/agnews_embeddings.npz",
+  "agnews_text": "PATH/TO/agnews_embeddings.csv",
+  "dbpedia_artifact": "PATH/TO/dbpedia14_embeddings.npz",
+  "alternate_encoder_artifact": "PATH/TO/20newsgroups_alternate_encoder.npz"
+}

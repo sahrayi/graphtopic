@@ -1,0 +1,35 @@
+name: Bug report
+description: Report reproducible incorrect behavior in GraphTopic
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include private documents, credentials, or proprietary embeddings."
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      render: python
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: GraphTopic version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Python, OS, NumPy, igraph, leidenalg, and PyNNDescent versions.
+    validations:
+      required: true

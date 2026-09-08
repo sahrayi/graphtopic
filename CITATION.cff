@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use GraphTopic, please cite the software and associated paper."
+title: "GraphTopic: Sparse-graph topic discovery"
+type: software
+authors:
+  - family-names: Sahrayi
+    given-names: Mohsen
+    email: m.sahrayi.a@gmail.com
+version: 0.1.0
+date-released: 2026-09-08
+repository-code: "https://github.com/sahrayi/graphtopic"
+url: "https://github.com/sahrayi/graphtopic"
+license: MIT
+keywords:
+  - topic modeling
+  - document embeddings
+  - sparse graphs
+  - Leiden
+preferred-citation:
+  type: article
+  title: "GraphTopic: Scalable Topic Discovery with Sparse Semantic Document Graphs"
+  authors:
+    - family-names: Sahrayi
+      given-names: Mohsen
+  notes: "Manuscript; update this record when a DOI is assigned."

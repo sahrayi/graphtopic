@@ -1,0 +1,10 @@
+include LICENSE README.md CHANGELOG.md CONTRIBUTING.md
+recursive-include docs *.md
+exclude docs/IMPLEMENTATION_STATUS.md
+recursive-include examples *.py
+recursive-include requirements *.txt
+recursive-include scripts *.ps1
+recursive-include experiments *.py *.json *.md
+prune experiments/artifacts/cache
+prune experiments/results
+recursive-include tests *.py
