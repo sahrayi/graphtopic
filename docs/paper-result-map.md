@@ -25,4 +25,4 @@ build`.
 The current public-data protocol uses 18,846 20 Newsgroups records and 630,000
 DBpedia14 records. The LaTeX manuscript has been reconciled with the promoted
 reference report; historical artifact sizes, granularities, and table values are not
-part of the 0.1.0 evidence.
+part of the 0.1.1 evidence.
