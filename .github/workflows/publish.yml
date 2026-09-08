@@ -40,6 +40,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
 
   publish-pypi:
     if: github.event_name == 'release'
@@ -54,3 +55,5 @@ jobs:
           name: release-distributions
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true

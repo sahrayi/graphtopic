@@ -1,31 +1,42 @@
 # GraphTopic
 
+[![PyPI](https://img.shields.io/pypi/v/graphtopic)](https://pypi.org/project/graphtopic/)
+[![Python](https://img.shields.io/pypi/pyversions/graphtopic)](https://pypi.org/project/graphtopic/)
+[![CI](https://github.com/sahrayi/graphtopic/actions/workflows/ci.yml/badge.svg)](https://github.com/sahrayi/graphtopic/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Discover topics by partitioning a sparse semantic document graph.
 
 GraphTopic encodes documents (or accepts your embeddings), retrieves approximate
 candidate neighbors, recomputes cosine weights, builds a union-max graph, partitions
 it with Leiden, and explains the resulting communities with class-based TF-IDF.
 
-**Release candidate: 0.1.0.** This implementation follows the current
-GraphTopic paper protocol. The distribution is not on PyPI until the release workflow completes.
-The old 0.0.2 implementation is available under the Git tag `legacy-v0.0.2`.
-Installing the existing PyPI release will not give you this API.
+Version 0.1.0 is the official implementation of the current GraphTopic paper protocol.
+The earlier 0.0.2 implementation remains available under the Git tag `legacy-v0.0.2`.
 
-## Installation from this checkout
+## Installation
 
-Requires Python 3.11 or newer. Python 3.11–3.13 are the CI targets.
+GraphTopic requires Python 3.11 or newer and is tested on Python 3.11–3.14.
+
+Install the library from PyPI:
+
+```bash
+python -m pip install graphtopic
+```
+
+The core installation accepts precomputed embeddings. To also encode documents
+with Sentence Transformers:
+
+```bash
+python -m pip install "graphtopic[embedding]"
+```
+
+To install from a source checkout:
 
 ```bash
 python -m venv .venv
 # Activate the environment using your shell's activation command.
 python -m pip install .
-```
-
-The core includes numerical, sparse graph, ANN and Leiden dependencies, but does
-not install Sentence Transformers or PyTorch. To encode text with a pretrained model:
-
-```bash
-python -m pip install ".[embedding]"
 ```
 
 For development:
