@@ -62,7 +62,7 @@ def _core(dataset):
     graph = read_json(RESULTS / dataset / "graph.json")
     return {
         "resolutions": summary["resolutions"],
-        "recall_at_20": ann["recall_at_20"],
+        "fidelity_at_20": ann["fidelity_at_20"],
         "graph": {
             key: graph[key]
             for key in (
@@ -92,6 +92,11 @@ def _bertopic(dataset):
     for key, rows in _seed_groups(f"{dataset}/bertopic/runs/*.json").items():
         flattened = []
         for row in rows:
+            expected_path = (
+                "natural" if row["target_topics"] is None else f"natural_to_{row['target_topics']}"
+            )
+            if row.get("reduction_path") != expected_path:
+                raise RuntimeError(f"BERTopic reduction is not independent in {dataset}/{key}")
             flattened.append({"coverage": row["coverage"], **row["reassigned"]})
             if row.get("residual_outliers_after_reassignment", 0) != 0:
                 raise RuntimeError(f"residual BERTopic outliers remain in {dataset}/{key}")
@@ -221,15 +226,9 @@ def _qualitative():
     }
 
 
-def build_report():
-    checkpoint = read_json(RESULTS / "paper-checkpoint.json")
-    incomplete = [
-        name for name, state in checkpoint["stages"].items() if state.get("status") != "complete"
-    ]
-    if incomplete:
-        raise RuntimeError(f"incomplete stages: {', '.join(incomplete)}")
+def _artifacts(names):
     artifacts = {}
-    for name in ("20newsgroups", "agnews", "dbpedia14", "20newsgroups-alternate"):
+    for name in names:
         metadata = read_json(ARTIFACTS / name / "metadata.json")
         artifacts[name] = {
             key: metadata[key]
@@ -245,6 +244,17 @@ def build_report():
                 "embeddings_sha256",
             )
         }
+    return artifacts
+
+
+def build_report():
+    checkpoint = read_json(RESULTS / "paper-checkpoint.json")
+    incomplete = [
+        name for name, state in checkpoint["stages"].items() if state.get("status") != "complete"
+    ]
+    if incomplete:
+        raise RuntimeError(f"incomplete stages: {', '.join(incomplete)}")
+    artifacts = _artifacts(("20newsgroups", "agnews", "dbpedia14", "20newsgroups-alternate"))
     return {
         "schema_version": 1,
         "protocol_id": read_json(CONFIG)["protocol_id"],
@@ -261,6 +271,59 @@ def build_report():
         "scaling_exact_comparison": _exact_scaling(),
         "qualitative": _qualitative(),
     }
+
+
+def _full_suite_complete():
+    from .paper import generated_paths, stages
+
+    checkpoint = read_json(RESULTS / "paper-checkpoint.json")
+    required = {stage.name for stage in stages(generated_paths(), bootstrap=True)}
+    return all(checkpoint["stages"].get(name, {}).get("status") == "complete" for name in required)
+
+
+def refresh_report():
+    """Refresh only sections affected by the paper-v3 protocol correction."""
+    if not REFERENCE.exists():
+        raise FileNotFoundError("the validated previous reference report is required")
+    config = read_json(CONFIG)
+    report = read_json(REFERENCE)
+    checkpoint = read_json(RESULTS / "paper-checkpoint.json")
+    required = {
+        "bootstrap-20newsgroups",
+        "bootstrap-agnews",
+        "core-20newsgroups",
+        "core-agnews",
+        "bertopic-20newsgroups",
+        "bertopic-agnews",
+        "lexical-20newsgroups",
+        "lexical-agnews",
+    }
+    incomplete = [
+        name
+        for name in sorted(required)
+        if checkpoint["stages"].get(name, {}).get("status") != "complete"
+    ]
+    if incomplete:
+        raise RuntimeError("incomplete refresh stages: " + ", ".join(incomplete))
+    report["protocol_id"] = config["protocol_id"]
+    report["config_sha256"] = file_sha256(CONFIG)
+    report["environment"] = checkpoint["reference_environment"]
+    report["artifacts"].update(_artifacts(("20newsgroups", "agnews")))
+    for name, model_key in (
+        ("dbpedia14", "primary"),
+        ("20newsgroups-alternate", "alternate"),
+    ):
+        report["artifacts"][name]["model"] = config["models"][model_key]
+    report["core"].update({name: _core(name) for name in ("20newsgroups", "agnews")})
+    report["core"]["dbpedia14"].pop("recall_at_20", None)
+    report["core"]["dbpedia14"]["fidelity_at_20"] = None
+    report["bertopic"] = {name: _bertopic(name) for name in ("20newsgroups", "agnews")}
+    refreshed_lexical = {name: _lexical(name) for name in ("20newsgroups", "agnews")}
+    for name in ("20newsgroups", "agnews"):
+        report["lexical"][name]["bertopic/assignments"] = refreshed_lexical[name][
+            "bertopic/assignments"
+        ]
+    return report
 
 
 def _compare(reference, candidate, path=""):
@@ -284,7 +347,7 @@ def _compare(reference, candidate, path=""):
         tolerance = 0.005 if any(f".{name}." in f".{path}." for name in SCORE_NAMES) else 0.0
         if ".topics." in f".{path}.":
             tolerance = 0.5
-        if path.startswith("core.") and ".recall_at_20." in path:
+        if path.startswith("core.") and ".fidelity_at_20." in path:
             tolerance = 0.0005
         if ".mean_degree" in path:
             tolerance = 0.01
@@ -299,11 +362,15 @@ def _compare(reference, candidate, path=""):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("build", "promote", "compare"))
+    parser.add_argument("command", choices=("build", "refresh", "promote", "compare"))
     args = parser.parse_args(argv)
     if args.command == "build":
         atomic_json(CANDIDATE, build_report())
         print(f"Wrote {CANDIDATE}")
+        return 0
+    if args.command == "refresh":
+        atomic_json(CANDIDATE, refresh_report())
+        print(f"Wrote selectively refreshed {CANDIDATE}")
         return 0
     if args.command == "promote":
         if not CANDIDATE.exists():
@@ -314,7 +381,7 @@ def main(argv=None):
         return 0
     if not REFERENCE.exists():
         raise FileNotFoundError("no promoted reference report exists")
-    candidate = build_report()
+    candidate = build_report() if _full_suite_complete() else refresh_report()
     failures = _compare(read_json(REFERENCE), candidate)
     atomic_json(RESULTS / "comparison.json", {"passed": not failures, "failures": failures})
     print(json.dumps({"passed": not failures, "failures": failures}, indent=2))

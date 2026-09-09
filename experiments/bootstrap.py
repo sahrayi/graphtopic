@@ -151,6 +151,7 @@ def encode(dataset, config, artifact_dir, model_key):
     model = SentenceTransformer(
         model_spec["id"], revision=model_spec["revision"], device=config["embedding"]["device"]
     )
+    model.max_seq_length = model_spec["max_seq_length"]
     start = int(metadata.get("completed_rows", 0))
     resumable = embedding_path.exists()
     if resumable:

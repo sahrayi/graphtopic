@@ -827,11 +827,12 @@
       "dataset": "20newsgroups",
       "dimensions": 384,
       "documents": 18846,
-      "documents_sha256": "5637cb2c7d8560ec67c518ecc5de998d094fb3b2c0c2feb1f88eb5775a4f213d",
+      "documents_sha256": "c9fe3b91ea9a506622fb3564729ec46d81e900eedf28c8f84fa0e11a84faf300",
       "embeddings_sha256": "d1d185f81b8e9eb2c83ceed43ed8499063f6bae0b953af53146ef0453363d869",
       "labels_sha256": "dbf719ce12686dcf2fb589b7fb4ffa64b0fff0fe13faa6717fbf397e55e2ebad",
       "model": {
         "id": "sentence-transformers/all-MiniLM-L6-v2",
+        "max_seq_length": 256,
         "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
       },
       "source": {
@@ -854,6 +855,7 @@
       "labels_sha256": "dbf719ce12686dcf2fb589b7fb4ffa64b0fff0fe13faa6717fbf397e55e2ebad",
       "model": {
         "id": "sentence-transformers/paraphrase-MiniLM-L3-v2",
+        "max_seq_length": 128,
         "revision": "4ca70771034acceecb2e72475f72050fcdde4ddc"
       },
       "source": {
@@ -876,6 +878,7 @@
       "labels_sha256": "96bf591f8e30bb6a83bb05adb789ca30f454006db7f7878a1299f6c9689ef02a",
       "model": {
         "id": "sentence-transformers/all-MiniLM-L6-v2",
+        "max_seq_length": 256,
         "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
       },
       "source": {
@@ -898,6 +901,7 @@
       "labels_sha256": "d69143abe38634a6f0ccceac7481eb7cb72f9a474728f4ddaada1cec445f952f",
       "model": {
         "id": "sentence-transformers/all-MiniLM-L6-v2",
+        "max_seq_length": 256,
         "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
       },
       "source": {
@@ -1263,32 +1267,32 @@
       },
       "topics-18": {
         "ari": {
-          "mean": 0.20620140396342346,
-          "std": 0.01792493170524439
+          "mean": 0.2737445025080737,
+          "std": 0.018875773942063665
         },
         "completeness": {
-          "mean": 0.5197538216647943,
-          "std": 0.010758467040670296
+          "mean": 0.5311287275122212,
+          "std": 0.013062064791955166
         },
         "coverage": {
           "mean": 0.6424917754430648,
           "std": 0.011906615069297589
         },
         "homogeneity": {
-          "mean": 0.37115886493922057,
-          "std": 0.011801073074880564
+          "mean": 0.42564463785014006,
+          "std": 0.012326164209918177
         },
         "nmi": {
-          "mean": 0.43292960062343927,
-          "std": 0.008551477548719497
+          "mean": 0.4724148436777762,
+          "std": 0.008265241152624149
         },
         "topics": {
           "mean": 18.0,
           "std": 0.0
         },
         "v_measure": {
-          "mean": 0.43292960062343927,
-          "std": 0.008551477548719487
+          "mean": 0.4724148436777762,
+          "std": 0.008265241152624172
         }
       },
       "topics-30": {
@@ -1355,32 +1359,32 @@
       },
       "topics-3": {
         "ari": {
-          "mean": 0.39529772428655546,
-          "std": 0.13216224879252705
+          "mean": 0.5260448445822001,
+          "std": 0.01829628723150376
         },
         "completeness": {
-          "mean": 0.695834200595623,
-          "std": 0.021995840499518703
+          "mean": 0.6570715082501277,
+          "std": 0.031344082276734596
         },
         "coverage": {
           "mean": 0.7149247648902821,
           "std": 0.0036308389214712512
         },
         "homogeneity": {
-          "mean": 0.4077193025574914,
-          "std": 0.10437913344750034
+          "mean": 0.5013039131120889,
+          "std": 0.01884129036156528
         },
         "nmi": {
-          "mean": 0.5080135113972948,
-          "std": 0.08121378089695235
+          "mean": 0.5686874329551628,
+          "std": 0.02361040011708765
         },
         "topics": {
           "mean": 3.0,
           "std": 0.0
         },
         "v_measure": {
-          "mean": 0.5080135113972948,
-          "std": 0.08121378089695226
+          "mean": 0.5686874329551629,
+          "std": 0.02361040011708759
         }
       },
       "topics-7": {
@@ -1415,9 +1419,31 @@
       }
     }
   },
-  "config_sha256": "114771df26b369e267008daa81aa2ad93c4132462b4d028c3f8e303494ae74c4",
+  "config_sha256": "67c4e21eaaa9f600ca6f2cd66c00d729e16aaba1b9576e0244a613aec5b5bf7a",
   "core": {
     "20newsgroups": {
+      "fidelity_at_20": {
+        "candidate_count": 50,
+        "candidate_recall": {
+          "mean": 0.9983179454526161,
+          "minimum": 0.6,
+          "std": 0.011335708851850961,
+          "strict_mean": 0.9768730765149104,
+          "strict_minimum": 0.05
+        },
+        "k": 20,
+        "queries": 18846,
+        "query_seed": 1729,
+        "retained_recall": {
+          "mean": 0.9983179454526161,
+          "minimum": 0.6,
+          "std": 0.011335708851850961,
+          "strict_mean": 0.9768730765149104,
+          "strict_minimum": 0.05
+        },
+        "tie_policy": "any item tied at the exact kth score is relevant",
+        "tied_queries": 632
+      },
       "graph": {
         "candidate_shortages": 0,
         "connected_components": 1,
@@ -1428,18 +1454,6 @@
         "min_degree": 20,
         "n_edges": 281423,
         "n_vertices": 18846
-      },
-      "recall_at_20": {
-        "k": 20,
-        "mean": 0.9983179454526161,
-        "minimum": 0.6,
-        "queries": 18846,
-        "query_seed": 1729,
-        "std": 0.011335708851850961,
-        "strict_mean": 0.9710389472567121,
-        "strict_minimum": 0.0,
-        "tie_policy": "any item tied at the exact kth score is relevant",
-        "tied_queries": 632
       },
       "resolutions": {
         "1.0": {
@@ -1499,6 +1513,28 @@
       }
     },
     "agnews": {
+      "fidelity_at_20": {
+        "candidate_count": 50,
+        "candidate_recall": {
+          "mean": 0.9960999999999999,
+          "minimum": 0.8,
+          "std": 0.01870267360566398,
+          "strict_mean": 0.9960999999999999,
+          "strict_minimum": 0.8
+        },
+        "k": 20,
+        "queries": 1000,
+        "query_seed": 1729,
+        "retained_recall": {
+          "mean": 0.9960999999999999,
+          "minimum": 0.8,
+          "std": 0.01870267360566398,
+          "strict_mean": 0.9960999999999999,
+          "strict_minimum": 0.8
+        },
+        "tie_policy": "any item tied at the exact kth score is relevant",
+        "tied_queries": 1
+      },
       "graph": {
         "candidate_shortages": 0,
         "connected_components": 1,
@@ -1509,14 +1545,6 @@
         "min_degree": 20,
         "n_edges": 1900997,
         "n_vertices": 127600
-      },
-      "recall_at_20": {
-        "k": 20,
-        "mean": 0.99605,
-        "minimum": 0.8,
-        "queries": 1000,
-        "query_seed": 1729,
-        "std": 0.018758931206228145
       },
       "resolutions": {
         "0.1": {
@@ -1576,6 +1604,7 @@
       }
     },
     "dbpedia14": {
+      "fidelity_at_20": null,
       "graph": {
         "candidate_shortages": 0,
         "connected_components": 1,
@@ -1587,7 +1616,6 @@
         "n_edges": 9488516,
         "n_vertices": 630000
       },
-      "recall_at_20": null,
       "resolutions": {
         "0.05": {
           "ari": {
@@ -2098,16 +2126,16 @@
       "bertopic/assignments": {
         "topics-18": {
           "npmi_document_weighted": {
-            "mean": 0.23756960133944874,
-            "std": 0.025165525314224994
+            "mean": 0.28163757003702933,
+            "std": 0.015282859841106873
           },
           "npmi_macro": {
-            "mean": 0.26125993204675974,
-            "std": 0.035417910776208664
+            "mean": 0.2903672922315406,
+            "std": 0.025870231090967755
           },
           "topic_diversity": {
-            "mean": 0.8955555555555555,
-            "std": 0.020563061692579737
+            "mean": 0.8922222222222222,
+            "std": 0.019083960041464062
           }
         },
         "topics-30": {
@@ -2276,15 +2304,15 @@
       "bertopic/assignments": {
         "topics-3": {
           "npmi_document_weighted": {
-            "mean": 0.054411372543683625,
-            "std": 0.03081078745075898
+            "mean": 0.0783546425639722,
+            "std": 0.010659300977372046
           },
           "npmi_macro": {
-            "mean": 0.06694787690113475,
-            "std": 0.01600916888860857
+            "mean": 0.0724888894957978,
+            "std": 0.012042778608650892
           },
           "topic_diversity": {
-            "mean": 0.8133333333333332,
+            "mean": 0.8200000000000001,
             "std": 0.018257418583505533
           }
         },
@@ -2305,7 +2333,7 @@
       }
     }
   },
-  "protocol_id": "graphtopic-paper-v2-clean-20newsgroups",
+  "protocol_id": "graphtopic-paper-v3-fidelity-independent-bertopic",
   "qualitative": {
     "20newsgroups": {
       "dataset": "20newsgroups",

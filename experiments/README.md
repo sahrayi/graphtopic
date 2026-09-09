@@ -50,8 +50,9 @@ names without starting work with:
 ```
 
 Run selected stages with repeated `--only STAGE`. The default order is bootstrap,
-canonical GraphTopic, classical baselines, BERTopic, sensitivity/graph/encoder
-ablations, scaling, lexical audits, and deterministic qualitative examples.
+canonical GraphTopic, classical baselines, independently reduced BERTopic targets,
+sensitivity/graph/encoder ablations, scaling, lexical audits, and deterministic
+qualitative examples.
 
 Bootstrap is split by artifact. For example, prepare only the two cleaned 20
 Newsgroups embedding artifacts with:
@@ -71,14 +72,17 @@ scikit-learn release with `shuffle=False` and with headers, footers, and quoted 
 removed so that metadata cues do not drive the semantic or lexical comparisons.
 
 Every generated artifact contains compressed documents, labels, float32 embeddings,
-and metadata with source/model identity plus SHA-256 checksums. Corrupt or incomplete
-caches fail validation rather than being silently reused.
+and metadata with source/model identity, the explicitly locked maximum sequence
+length, and SHA-256 checksums. Corrupt or incomplete caches fail validation rather
+than being silently reused. No document chunking or pooling across chunks is applied.
 
-ANN Recall@20 is tie-aware: when several documents have exactly the cosine score at
-the twentieth-neighbor boundary, any of those documents is accepted for the available
-tie slots. The report also retains strict deterministic-index recall and the number of
-queries affected by boundary ties. This prevents identical cleaned documents from
-being counted as retrieval errors solely because their row identifiers differ.
+Candidate Recall@20|50 and Final Retained Recall@20 are tie-aware: when several
+documents have exactly the cosine score at the twentieth-neighbor boundary, any of
+those documents is accepted for the available tie slots. The first measure audits
+coverage anywhere in the 50 ANN candidates. The second exactly re-scores those
+candidates, applies the graph's positive top-20 rule, and audits the directed
+neighborhood supplied to symmetrization. The report also retains strict
+deterministic-index recall and the number of queries affected by boundary ties.
 
 Qualitative topics are selected by size with fixed tie-breaking. Their representative
 documents are selected by maximum cosine similarity to the topic centroid, not by
@@ -97,7 +101,7 @@ and uses hard links when source and destination are on the same filesystem.
 
 ## Official Graph2Topic baseline
 
-The nearest prior pipeline is evaluated with the upstream `graph2topictm==2.0`
+The closest earlier single-view comparator is evaluated with the upstream `graph2topictm==2.0`
 package, not with a local reimplementation. Its 2023 dependency stack is isolated
 from the main reference environment. After the cleaned 20 Newsgroups core runs have
 established the matched topic counts, create a Python 3.9 environment and run:
@@ -110,7 +114,7 @@ set OMP_NUM_THREADS=1
 set MKL_NUM_THREADS=1
 set OPENBLAS_NUM_THREADS=1
 set NUMEXPR_NUM_THREADS=1
-.graph2topic-venv\Scripts\python.exe -m experiments.graph2topic --artifact experiments\artifacts\graphtopic-paper-v2-clean-20newsgroups\20newsgroups --results experiments\results\graphtopic-paper-v2-clean-20newsgroups
+.graph2topic-venv\Scripts\python.exe -m experiments.graph2topic --artifact experiments\artifacts\graphtopic-paper-v3-fidelity-independent-bertopic\20newsgroups --results experiments\results\graphtopic-paper-v3-fidelity-independent-bertopic
 .paper-venv\Scripts\python.exe -m experiments.paper --only lexical-20newsgroups
 ```
 
@@ -138,6 +142,27 @@ Build the compact candidate report after all stages finish:
 ```bat
 .paper-venv\Scripts\python.exe -m experiments.report build
 ```
+
+The ANN audit reports both Candidate Recall@20|50 and Final Retained Recall@20.
+The former tests whether exact top-20 neighbors occur anywhere in the 50 ANN
+candidates; the latter exactly re-scores those candidates and tests the positive
+top-20 neighborhood actually supplied to graph symmetrization. BERTopic fits a
+fresh natural seeded model for every requested target and reduces it directly,
+so smaller targets never inherit an earlier larger-target reduction.
+
+When only the paper-v3 fidelity and BERTopic corrections are being refreshed from
+the already validated paper-v2 protocol, its unchanged 20 Newsgroups and AG News
+embeddings may first be reused without copying any stale downstream result:
+
+```bat
+.paper-venv\Scripts\python.exe -m experiments.carry_forward --artifacts-only --previous-artifacts PATH\TO\PAPER-V2\artifacts --include 20newsgroups --include agnews
+```
+
+This transition verifies all three artifact checksums and pinned encoder/source
+identity, records the now-explicit native sequence limit, and gives the destination
+independent metadata. Then run the eight affected stages and use
+`python -m experiments.report refresh`. A complete clean reproduction still uses
+`python -m experiments.paper` followed by `python -m experiments.report build`.
 
 The report contains artifact hashes, core metrics, all baselines, BERTopic, lexical
 audits, ablations, and scaling summaries. After reviewing it and reconciling the

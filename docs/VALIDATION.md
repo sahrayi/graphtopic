@@ -11,12 +11,12 @@ compared without failures. This file records observed checks, not unexecuted res
 
 | Check | Result |
 | --- | --- |
-| Release-candidate pytest suite | 114 passed, 1 opt-in model-download test skipped |
+| Current full pytest suite | 120 passed, 1 opt-in model-download test skipped |
 | Real default encoder test | 1 passed separately with model download enabled |
 | Branch-aware coverage | Passed the configured 85% release threshold |
 | Expected warnings | 14 neighborhood-budget reductions plus 1 upstream SciPy deprecation warning |
 | Ruff lint | Passed |
-| Ruff format | Passed, 52 Python files |
+| Ruff format | Passed, 54 Python files |
 | Git whitespace check | Passed |
 | Isolated sdist then wheel build | Passed |
 | Twine distribution metadata checks | Both passed |
@@ -26,7 +26,7 @@ compared without failures. This file records observed checks, not unexecuted res
 | Dependency consistency, pip check | Passed |
 | Pinned runtime lower bounds on Python 3.11 | 110 passed, 1 optional test deselected |
 
-The 115 collected tests exercise exact neighbor search against a brute-force oracle, candidate
+The 121 collected tests exercise exact neighbor search against a brute-force oracle, candidate
 cleanup and rescoring, max rather than sum symmetrization, sparse graph validation,
 isolated nodes, real weighted Leiden, real NNDescent candidate fidelity, hand-derived
 c-TF-IDF values, custom components, optional encoder behavior, defensive snapshots,
@@ -71,7 +71,7 @@ The CI workflow performs wheel smoke checks after uninstalling the editable pack
 
 ## Published release and current paper follow-up
 
-- GraphTopic 0.1.1 is published on GitHub and PyPI. Its configured release checks,
+- GraphTopic 0.1.2 is published on GitHub and PyPI. Its configured release checks,
   package upload, clean PyPI installation, and installed-package example were completed.
 - All 17 paper-v1 self-bootstrapping stages completed in the locked reference environment.
   The compact report was promoted, its independent comparison passed, residual
@@ -86,5 +86,17 @@ The CI workflow performs wheel smoke checks after uninstalling the editable pack
   exact-search timings, and prespecified qualitative examples. It was reconciled with
   the LaTeX source, promoted, and `experiments.report compare` passed with no failures.
 
-The published package validation and paper-v2 experimental validation are separate
+The published package validation and paper experimental validation are separate
 records; neither is used as a substitute for the other.
+
+## Validated paper-v3 protocol correction
+
+On September 9, 2026, the eight affected stages were rerun under the locked reference
+environment. The protocol distinguishes Candidate Recall@20|50 from Final Retained
+Recall@20, independently fits BERTopic's natural partition before each direct target
+reduction, and locks encoder maximum sequence lengths. Unchanged AG News embeddings
+were reused only after checksum and provenance validation; cleaned 20 Newsgroups
+embeddings were regenerated because the available archived artifact predated metadata
+removal. The refreshed aggregate was reconciled with the LaTeX manuscript, promoted,
+and independently compared without failures. The promoted paper-v3 report is now the
+current manuscript oracle; paper-v2 remains a historical record.

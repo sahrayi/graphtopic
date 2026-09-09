@@ -1,14 +1,16 @@
 {
   "schema_version": 1,
-  "protocol_id": "graphtopic-paper-v2-clean-20newsgroups",
+  "protocol_id": "graphtopic-paper-v3-fidelity-independent-bertopic",
   "models": {
     "primary": {
       "id": "sentence-transformers/all-MiniLM-L6-v2",
-      "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+      "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "max_seq_length": 256
     },
     "alternate": {
       "id": "sentence-transformers/paraphrase-MiniLM-L3-v2",
-      "revision": "4ca70771034acceecb2e72475f72050fcdde4ddc"
+      "revision": "4ca70771034acceecb2e72475f72050fcdde4ddc",
+      "max_seq_length": 128
     }
   },
   "sources": {

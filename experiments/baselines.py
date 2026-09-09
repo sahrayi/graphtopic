@@ -209,27 +209,9 @@ def run_bertopic(args):
     total = len(config["leiden_seeds"]) * (1 + len(targets))
     run_progress = Progress(f"BERTopic outputs for {args.dataset}", total)
     completed = 0
-    for seed in config["leiden_seeds"]:
-        names = ["natural", *(f"topics-{target}" for target in targets)]
-        expected = [
-            path
-            for name in names
-            for path in (
-                output / "assignments" / f"{name}-seed-{seed}.npz",
-                output / "runs" / f"{name}-seed-{seed}.json",
-            )
-        ]
-        if not args.force and all(path.exists() for path in expected):
-            repaired = repair_saved_bertopic(
-                output, args.results, args.dataset, expected, embeddings, reference
-            )
-            if repaired:
-                status(f"Repaired {repaired} saved BERTopic assignments for seed={seed}")
-            completed += 1 + len(targets)
-            run_progress.update(completed, "repaired" if repaired else "cached")
-            continue
-        status(f"Fitting natural BERTopic partition with seed={seed}")
-        model = BERTopic(
+
+    def fresh_model(seed):
+        return BERTopic(
             embedding_model=None,
             umap_model=UMAP(
                 n_neighbors=15,
@@ -250,21 +232,81 @@ def run_bertopic(args):
             calculate_probabilities=False,
             verbose=False,
         )
+
+    for seed in config["leiden_seeds"]:
+        names = ["natural", *(f"topics-{target}" for target in targets)]
+        expected = [
+            path
+            for name in names
+            for path in (
+                output / "assignments" / f"{name}-seed-{seed}.npz",
+                output / "runs" / f"{name}-seed-{seed}.json",
+            )
+        ]
+        if not args.force and all(path.exists() for path in expected):
+            repaired = repair_saved_bertopic(
+                output, args.results, args.dataset, expected, embeddings, reference
+            )
+            if repaired:
+                status(f"Repaired {repaired} saved BERTopic assignments for seed={seed}")
+            completed += 1 + len(targets)
+            run_progress.update(completed, "repaired" if repaired else "cached")
+            continue
+        status(f"Fitting natural BERTopic partition with seed={seed}")
+        model = fresh_model(seed)
         natural, _ = model.fit_transform(documents, embeddings=embeddings)
-        _record_bertopic(output, model, documents, embeddings, reference, seed, None, natural)
+        _record_bertopic(
+            output,
+            model,
+            documents,
+            embeddings,
+            reference,
+            seed,
+            None,
+            natural,
+            reduction_path="natural",
+        )
         completed += 1
         run_progress.update(completed, "natural partition")
         for target in targets:
-            status(f"Reducing BERTopic seed={seed} to {target} non-outlier topics")
-            model.reduce_topics(documents, nr_topics=target + 1)
+            status(
+                f"Fitting independent natural BERTopic partition for seed={seed}, target={target}"
+            )
+            target_model = fresh_model(seed)
+            target_natural, _ = target_model.fit_transform(documents, embeddings=embeddings)
+            if not np.array_equal(np.asarray(natural), np.asarray(target_natural)):
+                raise RuntimeError(
+                    "BERTopic natural partition changed across identical seeded fits"
+                )
+            status(f"Reducing BERTopic seed={seed} directly to {target} non-outlier topics")
+            target_model.reduce_topics(documents, nr_topics=target + 1)
             _record_bertopic(
-                output, model, documents, embeddings, reference, seed, target, model.topics_
+                output,
+                target_model,
+                documents,
+                embeddings,
+                reference,
+                seed,
+                target,
+                target_model.topics_,
+                reduction_path=f"natural_to_{target}",
             )
             completed += 1
             run_progress.update(completed, f"target={target}")
 
 
-def _record_bertopic(output, model, documents, embeddings, reference, seed, target, labels):
+def _record_bertopic(
+    output,
+    model,
+    documents,
+    embeddings,
+    reference,
+    seed,
+    target,
+    labels,
+    *,
+    reduction_path,
+):
     labels = np.asarray(labels, dtype=np.int32)
     covered = labels != -1
     reassigned = (
@@ -288,6 +330,7 @@ def _record_bertopic(output, model, documents, embeddings, reference, seed, targ
             "method": "BERTopic",
             "seed": seed,
             "target_topics": target,
+            "reduction_path": reduction_path,
             "coverage": float(covered.mean()),
             "native": external_scores(reference, labels),
             "covered": external_scores(reference[covered], labels[covered]),

@@ -56,8 +56,13 @@ class Stage:
 def _core_complete(dataset, resolutions):
     expected = len(resolutions) * 5
     base = RESULTS / dataset
+    ann_path = base / "ann.json"
+    fidelity = load_json(ann_path).get("fidelity_at_20") if ann_path.exists() else None
     return (
         (base / "summary.json").exists()
+        and fidelity is not None
+        and "candidate_recall" in fidelity
+        and "retained_recall" in fidelity
         and count(f"{dataset}/runs/gamma-*-seed-*.json") == expected
         and count(f"{dataset}/assignments/gamma-*-seed-*.npz") == expected
     )
@@ -78,6 +83,14 @@ def _bertopic_complete(dataset):
         with np.load(path, allow_pickle=False) as saved:
             if "reassigned" not in saved or np.any(saved["reassigned"] == -1):
                 return False
+        record = load_json(RESULTS / dataset / "bertopic" / "runs" / f"{path.stem}.json")
+        expected_path = (
+            "natural"
+            if record["target_topics"] is None
+            else f"natural_to_{record['target_topics']}"
+        )
+        if record.get("reduction_path") != expected_path:
+            return False
     return True
 
 
@@ -94,10 +107,17 @@ def _exact_scaling_complete():
 
 
 def _lexical_complete(dataset):
-    expected = 50
-    if dataset == "20newsgroups" and count(f"{dataset}/graph2topic/assignments/*.npz") == 10:
-        expected += 10
-    return count(f"lexical/{dataset}/**/*.json") == expected
+    pairs = []
+    for pattern in (
+        "assignments/*.npz",
+        "baselines/assignments/*.npz",
+        "bertopic/assignments/topics-*.npz",
+        "graph2topic/assignments/topics-*.npz",
+    ):
+        for assignment in (RESULTS / dataset).glob(pattern):
+            relative = assignment.relative_to(RESULTS / dataset).with_suffix(".json")
+            pairs.append(RESULTS / "lexical" / dataset / relative)
+    return bool(pairs) and all(path.exists() for path in pairs)
 
 
 def _qualitative_complete(dataset):

@@ -7,7 +7,7 @@ build`.
 | Paper evidence | Report source | Reproduction status |
 | --- | --- | --- |
 | Corpus sizes, labels, dimensions, encoder/source identity | `artifacts` | Direct |
-| ANN Recall@20 | `core.*.recall_at_20` | Direct |
+| ANN candidate Recall@20\|50 and final retained Recall@20 | `core.*.fidelity_at_20` | Direct |
 | Canonical topic counts, ARI, NMI | `core.*.resolutions` | Direct, five seeds |
 | Sparse graph edges/connectivity | `core.*.graph` | Direct |
 | KMeans, NMF, and LDA comparison | `baselines` | Direct, five seeds |
@@ -26,5 +26,6 @@ build`.
 
 The current public-data protocol uses 18,846 20 Newsgroups records and 630,000
 DBpedia14 records. The LaTeX manuscript has been reconciled with the promoted
-reference report for the cleaned paper-v2 protocol, and its independent comparison
-passes. Historical paper-v1 values are no longer the current manuscript evidence.
+reference report for the corrected paper-v3 protocol, and its independent comparison
+passes. Historical paper-v1 and paper-v2 values are no longer the current manuscript
+evidence.

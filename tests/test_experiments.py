@@ -10,8 +10,8 @@ from experiments import environment as experiment_environment
 from experiments import paper
 from experiments.ablations import variant_graph
 from experiments.baselines import assign_remaining_outliers, reference_topics
-from experiments.carry_forward import carry_forward
-from experiments.common import atomic_json, load_artifact, parse_embedding
+from experiments.carry_forward import carry_artifacts, carry_forward
+from experiments.common import atomic_json, file_sha256, load_artifact, parse_embedding
 from experiments.graph2topic import _assign_outliers
 from experiments.metrics import external_scores, lexical_scores, shared_topic_words
 from experiments.qualitative import build_examples
@@ -64,16 +64,28 @@ def test_exact_recall_is_one_for_exact_candidates():
     embeddings = np.eye(4, dtype=np.float32)
     candidates = np.asarray([[1, 2], [0, 2], [0, 1], [0, 1]])
     result = exact_recall(embeddings, candidates, k=2, query_count="all", seed=1)
-    assert result["mean"] == 1.0
+    assert result["candidate_recall"]["mean"] == 1.0
+    assert result["retained_recall"]["mean"] == 0.0
 
 
 def test_exact_recall_does_not_penalize_equivalent_tied_neighbors():
     embeddings = np.ones((3, 2), dtype=np.float32)
     candidates = np.asarray([[2], [2], [1]])
     result = exact_recall(embeddings, candidates, k=1, query_count="all", seed=1)
-    assert result["mean"] == 1.0
-    assert result["strict_mean"] == 0.0
+    assert result["candidate_recall"]["mean"] == 1.0
+    assert result["candidate_recall"]["strict_mean"] == 0.0
+    assert result["retained_recall"]["mean"] == 1.0
     assert result["tied_queries"] == 3
+
+
+def test_exact_recall_rescores_all_candidates_before_retention():
+    embeddings = np.asarray([[1.0, 0.0], [0.9, 0.1], [0.8, 0.2], [0.1, 0.9]], dtype=np.float32)
+    embeddings /= np.linalg.norm(embeddings, axis=1, keepdims=True)
+    candidates = np.asarray([[3, 2, 1], [3, 2, 0], [3, 1, 0], [0, 1, 2]], dtype=np.int64)
+    result = exact_recall(embeddings, candidates, k=2, query_count="all", seed=1)
+    assert result["candidate_count"] == 3
+    assert result["candidate_recall"]["mean"] == 1.0
+    assert result["retained_recall"]["mean"] == 1.0
 
 
 def test_graph_ablation_variants_have_expected_edges():
@@ -275,3 +287,44 @@ def test_carry_forward_excludes_changed_newsgroups(tmp_path, monkeypatch):
     assert manifest["excluded_dataset"] == "20newsgroups"
     assert (destination_artifacts / "agnews" / "payload.bin").exists()
     assert not (destination_artifacts / "20newsgroups").exists()
+
+
+def test_carry_artifacts_accepts_explicit_model_metadata_extension(tmp_path, monkeypatch):
+    previous = tmp_path / "old-artifacts"
+    destination = tmp_path / "new-artifacts"
+    artifact = previous / "20newsgroups"
+    artifact.mkdir(parents=True)
+    for filename, content in (
+        ("documents.jsonl.gz", b"documents"),
+        ("labels.npy", b"labels"),
+        ("embeddings.npy", b"embeddings"),
+    ):
+        (artifact / filename).write_bytes(content)
+    config = {
+        "protocol_id": "paper-v3",
+        "sources": {"20newsgroups": {"source": "clean"}},
+        "models": {"primary": {"id": "encoder", "revision": "commit", "max_seq_length": 256}},
+    }
+    config_path = tmp_path / "config.json"
+    atomic_json(config_path, config)
+    atomic_json(
+        artifact / "metadata.json",
+        {
+            "protocol_id": "paper-v2",
+            "dataset": "20newsgroups",
+            "source": config["sources"]["20newsgroups"],
+            "model": {"id": "encoder", "revision": "commit"},
+            "embedding_complete": True,
+            "documents_sha256": file_sha256(artifact / "documents.jsonl.gz"),
+            "labels_sha256": file_sha256(artifact / "labels.npy"),
+            "embeddings_sha256": file_sha256(artifact / "embeddings.npy"),
+        },
+    )
+    monkeypatch.setattr("experiments.carry_forward.artifact_root", lambda _: destination)
+
+    manifest = carry_artifacts(previous, config_path, ["20newsgroups"])
+
+    metadata = json.loads((destination / "20newsgroups" / "metadata.json").read_text())
+    assert manifest["artifacts_only"] is True
+    assert metadata["protocol_id"] == "paper-v3"
+    assert metadata["model"]["max_seq_length"] == 256

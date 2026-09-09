@@ -38,6 +38,15 @@ DEFAULT_RESULTS = result_root()
 DEFAULT_CACHE = artifact_root() / "cache"
 
 
+def _recall(scores, selected, exact, cutoff, tie_slots, k):
+    chosen = set(selected.tolist())
+    strict = len(exact & chosen) / k
+    chosen_scores = scores[selected]
+    above_hits = int(np.sum(chosen_scores > cutoff))
+    tied_hits = int(np.sum(chosen_scores == cutoff))
+    return (above_hits + min(tied_hits, tie_slots)) / k, strict
+
+
 def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128):
     if not query_count:
         return None
@@ -47,14 +56,16 @@ def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128
         if query_count == "all"
         else np.sort(rng.choice(len(embeddings), min(query_count, len(embeddings)), replace=False))
     )
-    recalls = []
-    strict_recalls = []
+    candidate_recalls = []
+    candidate_strict_recalls = []
+    retained_recalls = []
+    retained_strict_recalls = []
     tied_queries = 0
     ids = np.arange(len(embeddings))
     recall_progress = Progress("Exact-neighbor recall audit", len(query_ids))
     for start in range(0, len(query_ids), batch_size):
         rows = query_ids[start : start + batch_size]
-        scores = embeddings[rows] @ embeddings.T
+        scores = np.clip(embeddings[rows] @ embeddings.T, -1, 1)
         scores[np.arange(len(rows)), rows] = -np.inf
         for offset, row_id in enumerate(rows):
             row = scores[offset]
@@ -64,28 +75,49 @@ def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128
             tie_slots = k - len(above)
             tied = all_tied[:tie_slots]
             exact = set(np.concatenate((above, tied)).tolist())
-            approximate_ids = np.asarray(candidates[row_id])[:k]
-            approximate = set(approximate_ids.tolist())
-            strict_recalls.append(len(exact & approximate) / k)
-            approximate_scores = row[approximate_ids]
-            above_hits = int(np.sum(approximate_scores > cutoff))
-            tied_hits = int(np.sum(approximate_scores == cutoff))
-            recalls.append((above_hits + min(tied_hits, tie_slots)) / k)
+            candidate_ids = np.unique(np.asarray(candidates[row_id], dtype=np.int64))
+            candidate_ids = candidate_ids[candidate_ids != row_id]
+            candidate_recall, candidate_strict = _recall(
+                row, candidate_ids, exact, cutoff, tie_slots, k
+            )
+            candidate_scores = np.clip(row[candidate_ids], -1, 1)
+            positive = candidate_scores > 0
+            retained_ids = candidate_ids[positive]
+            retained_scores = candidate_scores[positive]
+            order = np.lexsort((retained_ids, -retained_scores))[:k]
+            retained_ids = retained_ids[order]
+            retained_recall, retained_strict = _recall(
+                row, retained_ids, exact, cutoff, tie_slots, k
+            )
+            candidate_recalls.append(candidate_recall)
+            candidate_strict_recalls.append(candidate_strict)
+            retained_recalls.append(retained_recall)
+            retained_strict_recalls.append(retained_strict)
             tied_queries += int(len(all_tied) > tie_slots)
         recall_progress.update(min(start + len(rows), len(query_ids)))
-    values = np.asarray(recalls)
-    strict_values = np.asarray(strict_recalls)
+    candidate_values = np.asarray(candidate_recalls)
+    candidate_strict_values = np.asarray(candidate_strict_recalls)
+    retained_values = np.asarray(retained_recalls)
+    retained_strict_values = np.asarray(retained_strict_recalls)
+
+    def summary(values, strict_values):
+        return {
+            "mean": float(values.mean()),
+            "std": float(values.std()),
+            "minimum": float(values.min()),
+            "strict_mean": float(strict_values.mean()),
+            "strict_minimum": float(strict_values.min()),
+        }
+
     return {
         "k": k,
+        "candidate_count": max((len(row) for row in candidates), default=0),
         "queries": len(query_ids),
         "query_seed": seed,
-        "mean": float(values.mean()),
-        "std": float(values.std()),
-        "minimum": float(values.min()),
         "tie_policy": "any item tied at the exact kth score is relevant",
         "tied_queries": tied_queries,
-        "strict_mean": float(strict_values.mean()),
-        "strict_minimum": float(strict_values.min()),
+        "candidate_recall": summary(candidate_values, candidate_strict_values),
+        "retained_recall": summary(retained_values, retained_strict_values),
     }
 
 
@@ -152,7 +184,7 @@ def run_core(args) -> dict:
     )
     atomic_json(
         result_dir / "ann.json",
-        {"seconds": ann_seconds, "source": candidate_source, "recall_at_20": recall},
+        {"seconds": ann_seconds, "source": candidate_source, "fidelity_at_20": recall},
     )
 
     graph_path = cache_dir / f"graph-{key}-k{config['retained_neighbors']}.npz"
