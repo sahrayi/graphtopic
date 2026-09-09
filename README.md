@@ -11,7 +11,7 @@ GraphTopic encodes documents (or accepts your embeddings), retrieves approximate
 candidate neighbors, recomputes cosine weights, builds a union-max graph, partitions
 it with Leiden, and explains the resulting communities with class-based TF-IDF.
 
-Version 0.1.1 is the official implementation of the current GraphTopic paper protocol.
+Version 0.1.2 is the official implementation of the current GraphTopic paper protocol.
 The earlier 0.0.2 implementation remains available under the Git tag `legacy-v0.0.2`.
 
 ## Installation

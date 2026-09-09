@@ -87,6 +87,7 @@ def test_bad_representation_output(corpus, embeddings, output):
 
     model = GraphTopic(
         embedding_model=None,
+        n_neighbors=3,
         neighbor_search=Search(),
         community_model=Detector(),
         representation_model=BadWords(),
@@ -116,6 +117,7 @@ def test_bad_partition_output(corpus, embeddings, labels):
     with pytest.raises(ValueError, match="community_model"):
         GraphTopic(
             embedding_model=None,
+            n_neighbors=3,
             neighbor_search=Search(),
             community_model=Bad(),
         ).fit(corpus, embeddings)

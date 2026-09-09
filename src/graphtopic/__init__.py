@@ -14,7 +14,7 @@ from .results import DocumentGraph, GraphTopicResult, ResolutionPath
 try:
     __version__ = version("graphtopic")
 except PackageNotFoundError:
-    __version__ = "0.1.1"
+    __version__ = "0.1.2"
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

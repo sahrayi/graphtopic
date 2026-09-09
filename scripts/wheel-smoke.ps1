@@ -6,6 +6,12 @@ $ErrorActionPreference = "Stop"
 $repository = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $environment = Join-Path $repository ".wheel-smoke-venv"
 $pythonExe = Join-Path $environment "Scripts\python.exe"
+$projectFile = Join-Path $repository "pyproject.toml"
+$versionMatch = Select-String -Path $projectFile -Pattern '^version = "([^"]+)"$'
+if (-not $versionMatch) {
+    throw "Could not determine the project version from pyproject.toml"
+}
+$expectedVersion = $versionMatch.Matches[0].Groups[1].Value
 $wheels = @(Get-ChildItem (Join-Path $repository "dist\graphtopic-*.whl"))
 if ($wheels.Count -ne 1) {
     throw "Expected exactly one GraphTopic wheel in dist; found $($wheels.Count)"
@@ -25,7 +31,7 @@ if (-not (Test-Path -LiteralPath $pythonExe)) {
 }
 Invoke-Checked "Install the built wheel" { & $pythonExe -m pip install $wheels[0].FullName }
 Invoke-Checked "Verify installed version" {
-    & $pythonExe -I -c "import graphtopic; assert graphtopic.__version__ == '0.1.0'"
+    & $pythonExe -I -c "import graphtopic; assert graphtopic.__version__ == '$expectedVersion'"
 }
 Invoke-Checked "Run installed-wheel precomputed example" {
     & $pythonExe -I (Join-Path $repository "examples\precomputed.py")

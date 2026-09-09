@@ -6,8 +6,8 @@ authors:
   - family-names: Sahrayi
     given-names: Mohsen
     email: m.sahrayi.a@gmail.com
-version: 0.1.1
-date-released: 2026-09-08
+version: 0.1.2
+date-released: 2026-09-09
 repository-code: "https://github.com/sahrayi/graphtopic"
 url: "https://github.com/sahrayi/graphtopic"
 license: MIT

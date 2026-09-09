@@ -50,7 +50,11 @@ def test_real_ann_small_corpora(n):
 @pytest.mark.integration
 def test_leiden_isolates_and_weighted_two_blocks():
     a = sparse.block_diag(
-        [np.array([[0, 1], [1, 0]]), np.array([[0, 1], [1, 0]]), np.zeros((1, 1))]
+        [
+            sparse.csr_matrix([[0, 1], [1, 0]]),
+            sparse.csr_matrix([[0, 1], [1, 0]]),
+            sparse.csr_matrix((1, 1)),
+        ]
     ).tocsr()
     a.eliminate_zeros()
     labels = LeidenDetector().fit_predict(DocumentGraph(a, tuple(range(5))))

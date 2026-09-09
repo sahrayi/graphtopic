@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2 — 2026-09-09
+
+- Remove headers, footers, and quoted replies from the controlled 20 Newsgroups protocol.
+- Add an official Graph2Topic comparison with explicit native coverage and deterministic
+  complete assignment.
+- Add exact-versus-approximate neighbor timing and prespecified qualitative audits.
+- Make paper experiments resumable across protocol revisions while preserving artifact
+  provenance.
+- Promote the fully rerun, validated reference report and document its manuscript mapping.
+
 ## 0.1.1 — 2026-09-08
 
 - Update the public README for installation from PyPI and the supported Python versions.
