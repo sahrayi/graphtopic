@@ -8,6 +8,7 @@ build/
 htmlcov/
 .venv/
 .paper-venv/
+.graph2topic-venv/
 .release-venv/
 .wheel-smoke-venv/
 venv/

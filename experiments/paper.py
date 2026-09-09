@@ -14,11 +14,13 @@ from pathlib import Path
 
 import numpy as np
 
+from .common import artifact_root, result_root
 from .environment import validate_reference_environment
 
 ROOT = Path(__file__).resolve().parent
 REPOSITORY = ROOT.parent
-RESULTS = ROOT / "results"
+RESULTS = result_root()
+ARTIFACTS = artifact_root()
 DEFAULT_PATHS = ROOT / "local-paths.json"
 CHECKPOINT = RESULTS / "paper-checkpoint.json"
 
@@ -87,20 +89,28 @@ def _scaling_complete(dataset, expected):
     return count(f"scaling/{dataset}/n-*-repeat-*.json") == expected
 
 
+def _exact_scaling_complete():
+    return count("scaling-exact/agnews/n-*-repeat-*.json") == 6
+
+
 def _lexical_complete(dataset):
-    return count(f"lexical/{dataset}/**/*.json") == 50
+    expected = 50
+    if dataset == "20newsgroups" and count(f"{dataset}/graph2topic/assignments/*.npz") == 10:
+        expected += 10
+    return count(f"lexical/{dataset}/**/*.json") == expected
 
 
-def _bootstrap_complete():
-    for name in ("20newsgroups", "agnews", "dbpedia14", "20newsgroups-alternate"):
-        metadata = ROOT / "artifacts" / name / "metadata.json"
-        if not metadata.exists() or not load_json(metadata).get("embedding_complete"):
-            return False
-    return True
+def _qualitative_complete(dataset):
+    return (RESULTS / "qualitative" / f"{dataset}.json").exists()
+
+
+def _bootstrap_complete(name):
+    metadata = ARTIFACTS / name / "metadata.json"
+    return metadata.exists() and load_json(metadata).get("embedding_complete") is True
 
 
 def generated_paths():
-    artifacts = ROOT / "artifacts"
+    artifacts = ARTIFACTS
     return {
         "newsgroups_artifact": str(artifacts / "20newsgroups"),
         "newsgroups_text": str(artifacts / "20newsgroups" / "documents.jsonl.gz"),
@@ -119,14 +129,21 @@ def stages(paths, *, bootstrap):
     }
     output = []
     if bootstrap:
-        output.append(
-            Stage(
-                "bootstrap",
-                "download frozen datasets and create primary/alternate embeddings",
-                (py, "-m", "experiments.bootstrap"),
-                _bootstrap_complete,
+        descriptions = {
+            "20newsgroups": "download cleaned 20 Newsgroups and create primary embeddings",
+            "agnews": "download AG News and create primary embeddings",
+            "dbpedia14": "download DBpedia14 and create primary embeddings",
+            "20newsgroups-alternate": "create cleaned 20 Newsgroups alternate embeddings",
+        }
+        for name, description in descriptions.items():
+            output.append(
+                Stage(
+                    f"bootstrap-{name}",
+                    description,
+                    (py, "-m", "experiments.bootstrap", "--only", name),
+                    lambda artifact=name: _bootstrap_complete(artifact),
+                )
             )
-        )
     for dataset, resolutions, artifact_key in (
         ("20newsgroups", (1, 2), "newsgroups_artifact"),
         ("agnews", (0.1, 0.2), "agnews_artifact"),
@@ -279,6 +296,21 @@ def stages(paths, *, bootstrap):
             ),
         )
     )
+    output.append(
+        Stage(
+            "scaling-exact-agnews",
+            "exact-search comparison on 10k and 25k AG News samples",
+            (
+                py,
+                "-m",
+                "experiments.exact_scaling",
+                "--artifact",
+                paths["agnews_artifact"],
+            ),
+            _exact_scaling_complete,
+            True,
+        )
+    )
     for dataset, (artifact, text) in common.items():
         output.append(
             Stage(
@@ -298,6 +330,22 @@ def stages(paths, *, bootstrap):
                     str(RESULTS / "lexical" / dataset),
                 ),
                 lambda d=dataset: _lexical_complete(d),
+            )
+        )
+        output.append(
+            Stage(
+                f"qualitative-{dataset}",
+                f"deterministic qualitative topic examples on {dataset}",
+                (
+                    py,
+                    "-m",
+                    "experiments.qualitative",
+                    "--dataset",
+                    dataset,
+                    "--artifact",
+                    artifact,
+                ),
+                lambda d=dataset: _qualitative_complete(d),
             )
         )
     return output

@@ -1,0 +1,19 @@
+# Isolated reference environment for the official Graph2Topic 2.0 baseline.
+# Use CPython 3.9; these are the versions declared by the upstream repository.
+graph2topictm==2.0
+networkx==3.1
+numpy==1.23.5
+pandas==2.0.0
+scikit-learn==1.2.2
+scipy==1.10.1
+sentence-transformers==2.2.2
+torch==2.0.1
+transformers==4.30.2
+tokenizers==0.13.3
+huggingface-hub==0.14.1
+umap-learn==0.5.3
+pynndescent==0.5.13
+numba==0.60.0
+llvmlite==0.43.0
+joblib==1.4.2
+threadpoolctl==3.5.0

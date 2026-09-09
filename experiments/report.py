@@ -10,11 +10,11 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
-from .common import atomic_json, file_sha256, read_json
+from .common import artifact_root, atomic_json, file_sha256, read_json, result_root
 
 ROOT = Path(__file__).resolve().parent
-RESULTS = ROOT / "results"
-ARTIFACTS = ROOT / "artifacts"
+RESULTS = result_root()
+ARTIFACTS = artifact_root()
 CONFIG = ROOT / "configs" / "paper.json"
 CANDIDATE = RESULTS / "reference-candidate.json"
 REFERENCE = ROOT / "expected" / "reference-results.json"
@@ -99,10 +99,47 @@ def _bertopic(dataset):
     return output
 
 
+def _graph2topic():
+    rows = _json_rows("20newsgroups/graph2topic/runs/*.json")
+    if len(rows) != 10:
+        raise RuntimeError("official Graph2Topic baseline is incomplete")
+    environments = {json.dumps(row["environment"], sort_keys=True) for row in rows}
+    settings = {json.dumps(row["settings"], sort_keys=True) for row in rows}
+    artifacts = {json.dumps(row["artifact"], sort_keys=True) for row in rows}
+    if len(environments) != 1 or len(settings) != 1 or len(artifacts) != 1:
+        raise RuntimeError("Graph2Topic runs do not share one environment, setting, and artifact")
+    groups = defaultdict(list)
+    for row in rows:
+        groups[f"topics-{row['target_topics']}"].append(row)
+    output = {}
+    for key, values in groups.items():
+        output[key] = {
+            "coverage": _mean_std(values, ("coverage",))["coverage"],
+            "native": _mean_std(
+                [row["native"] for row in values], ("topics", *sorted(SCORE_NAMES))
+            ),
+            "covered": _mean_std(
+                [row["covered"] for row in values], ("topics", *sorted(SCORE_NAMES))
+            ),
+            "reassigned": _mean_std(
+                [row["reassigned"] for row in values], ("topics", *sorted(SCORE_NAMES))
+            ),
+        }
+    return {
+        "environment": rows[0]["environment"],
+        "settings": rows[0]["settings"],
+        "artifact": rows[0]["artifact"],
+        "results": output,
+    }
+
+
 def _lexical(dataset):
     output = {}
     base = RESULTS / "lexical" / dataset
-    for family in ("assignments", "baselines/assignments", "bertopic/assignments"):
+    families = ["assignments", "baselines/assignments", "bertopic/assignments"]
+    if dataset == "20newsgroups":
+        families.append("graph2topic/assignments")
+    for family in families:
         groups = defaultdict(list)
         for path in sorted((base / family).glob("*.json")):
             key = re.sub(r"-seed-\d+$", "", path.stem)
@@ -162,6 +199,28 @@ def _scaling():
     return output
 
 
+def _exact_scaling():
+    groups = defaultdict(list)
+    for row in _json_rows("scaling-exact/agnews/n-*-repeat-*.json"):
+        groups[str(row["documents"])].append(row)
+    if {len(rows) for rows in groups.values()} != {3} or set(groups) != {"10000", "25000"}:
+        raise RuntimeError("exact-search scaling comparison is incomplete")
+    return {
+        size: {
+            name: statistics.median(float(row[name]) for row in rows)
+            for name in ("seconds", "rss_peak_mb", "rss_increment_mb")
+        }
+        for size, rows in groups.items()
+    }
+
+
+def _qualitative():
+    return {
+        dataset: read_json(RESULTS / "qualitative" / f"{dataset}.json")
+        for dataset in ("20newsgroups", "agnews")
+    }
+
+
 def build_report():
     checkpoint = read_json(RESULTS / "paper-checkpoint.json")
     incomplete = [
@@ -195,9 +254,12 @@ def build_report():
         "core": {name: _core(name) for name in ("20newsgroups", "agnews", "dbpedia14")},
         "baselines": {name: _baselines(name) for name in ("20newsgroups", "agnews")},
         "bertopic": {name: _bertopic(name) for name in ("20newsgroups", "agnews")},
+        "graph2topic": _graph2topic(),
         "lexical": {name: _lexical(name) for name in ("20newsgroups", "agnews")},
         "ablations": _ablations(),
         "scaling_observational": _scaling(),
+        "scaling_exact_comparison": _exact_scaling(),
+        "qualitative": _qualitative(),
     }
 
 
@@ -210,6 +272,7 @@ def _compare(reference, candidate, path=""):
                 failures.append(f"{child}: missing")
             elif (
                 child.startswith("scaling_observational")
+                or child.startswith("scaling_exact_comparison")
                 or child.startswith("environment")
                 or child.endswith("embeddings_sha256")
             ):

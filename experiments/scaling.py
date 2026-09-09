@@ -14,7 +14,14 @@ import numpy as np
 from graphtopic import LeidenDetector, NNDescentSearch, UnionMaxGraph
 from graphtopic._validation import normalize_embeddings
 
-from .common import atomic_json, load_artifact, read_json
+from .common import (
+    artifact_root,
+    atomic_json,
+    load_artifact,
+    read_json,
+    result_root,
+    validate_protocol_artifact,
+)
 from .progress import Progress, status
 
 ROOT = Path(__file__).resolve().parent
@@ -102,8 +109,8 @@ def main(argv=None):
     parser.add_argument("--dataset", choices=("agnews", "dbpedia14"), required=True)
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
-    parser.add_argument("--results", type=Path, default=ROOT / "results" / "scaling")
-    parser.add_argument("--cache", type=Path, default=ROOT / "artifacts" / "cache")
+    parser.add_argument("--results", type=Path, default=result_root() / "scaling")
+    parser.add_argument("--cache", type=Path, default=artifact_root() / "cache")
     parser.add_argument("--warmup", action="store_true")
     args = parser.parse_args(argv)
     config = read_json(args.config)
@@ -113,6 +120,7 @@ def main(argv=None):
         cache=args.cache / args.dataset / "artifact.npz",
         require_documents=False,
     )
+    validate_protocol_artifact(audit, config, args.dataset)
     definition = config["datasets"][args.dataset]
     if len(documents) != definition["documents"]:
         raise ValueError("artifact does not match the frozen dataset size")

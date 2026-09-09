@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .common import atomic_json, read_json
+from .common import artifact_root, atomic_json, read_json
 from .progress import Progress, status
 
 ROOT = Path(__file__).resolve().parent
@@ -85,6 +85,10 @@ def prepare_text(dataset, config, artifact_dir):
     if documents_path.exists() and labels_path.exists() and metadata_path.exists():
         status(f"Validating cached documents and labels for {dataset}")
         metadata = read_json(metadata_path)
+        if metadata.get("protocol_id") != config["protocol_id"]:
+            raise RuntimeError(f"cached artifact belongs to another protocol: {artifact_dir}")
+        if metadata.get("source") != config["sources"][dataset]:
+            raise RuntimeError(f"cached artifact uses another dataset source: {artifact_dir}")
         if _sha256(documents_path) != metadata.get("documents_sha256"):
             raise RuntimeError(f"cached document checksum mismatch: {artifact_dir}")
         if _sha256(labels_path) != metadata.get("labels_sha256"):
@@ -105,6 +109,7 @@ def prepare_text(dataset, config, artifact_dir):
     np.save(labels_path, labels, allow_pickle=False)
     metadata = {
         "schema_version": 1,
+        "protocol_id": config["protocol_id"],
         "dataset": dataset,
         "source": config["sources"][dataset],
         "documents": len(documents),
@@ -124,8 +129,11 @@ def encode(dataset, config, artifact_dir, model_key):
     embedding_path = artifact_dir / "embeddings.npy"
     metadata_path = artifact_dir / "metadata.json"
     dimensions = config["datasets"][dataset]["dimensions"]
+    model_spec = config["models"][model_key]
     shape = (len(documents), dimensions)
     if metadata.get("embedding_complete") and embedding_path.exists():
+        if metadata.get("model") != model_spec:
+            raise RuntimeError(f"cached embeddings use another encoder: {artifact_dir}")
         if np.load(embedding_path, mmap_mode="r").shape == shape:
             status(f"Reusing complete {dataset} embeddings ({len(documents):,} rows)")
             return
@@ -139,7 +147,6 @@ def encode(dataset, config, artifact_dir, model_key):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.use_deterministic_algorithms(True)
-    model_spec = config["models"][model_key]
     status(f"Loading pinned encoder for {dataset}: {model_spec['id']}")
     model = SentenceTransformer(
         model_spec["id"], revision=model_spec["revision"], device=config["embedding"]["device"]
@@ -187,19 +194,27 @@ def encode(dataset, config, artifact_dir, model_key):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
-    parser.add_argument("--artifacts", type=Path, default=ROOT / "artifacts")
+    parser.add_argument("--artifacts", type=Path, default=artifact_root())
+    parser.add_argument(
+        "--only",
+        action="append",
+        choices=("20newsgroups", "agnews", "dbpedia14", "20newsgroups-alternate"),
+        help="prepare only this artifact; repeat to select more than one",
+    )
     args = parser.parse_args(argv)
     config = read_json(args.config)
     status("Bootstrap started: datasets, models, and embeddings")
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
-    for dataset in ("20newsgroups", "agnews", "dbpedia14"):
-        encode(dataset, config, args.artifacts / dataset, "primary")
-    encode(
-        "20newsgroups",
-        config,
-        args.artifacts / "20newsgroups-alternate",
-        "alternate",
-    )
+    jobs = {
+        "20newsgroups": ("20newsgroups", "primary"),
+        "agnews": ("agnews", "primary"),
+        "dbpedia14": ("dbpedia14", "primary"),
+        "20newsgroups-alternate": ("20newsgroups", "alternate"),
+    }
+    selected = set(args.only or jobs)
+    for artifact_name, (dataset, model_key) in jobs.items():
+        if artifact_name in selected:
+            encode(dataset, config, args.artifacts / artifact_name, model_key)
     status("Bootstrap complete")
     print(json.dumps({"complete": True, "artifacts": str(args.artifacts.resolve())}))
 

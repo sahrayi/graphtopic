@@ -21,14 +21,21 @@ from graphtopic import LeidenDetector, NNDescentSearch, UnionMaxGraph
 from graphtopic._validation import normalize_embeddings
 from graphtopic.results import DocumentGraph
 
-from .common import atomic_json, load_artifact, read_json
+from .common import (
+    artifact_root,
+    atomic_json,
+    load_artifact,
+    read_json,
+    result_root,
+    validate_protocol_artifact,
+)
 from .metrics import external_scores
 from .progress import Progress, status
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONFIG = ROOT / "configs" / "paper.json"
-DEFAULT_RESULTS = ROOT / "results"
-DEFAULT_CACHE = ROOT / "artifacts" / "cache"
+DEFAULT_RESULTS = result_root()
+DEFAULT_CACHE = artifact_root() / "cache"
 
 
 def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128):
@@ -41,6 +48,8 @@ def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128
         else np.sort(rng.choice(len(embeddings), min(query_count, len(embeddings)), replace=False))
     )
     recalls = []
+    strict_recalls = []
+    tied_queries = 0
     ids = np.arange(len(embeddings))
     recall_progress = Progress("Exact-neighbor recall audit", len(query_ids))
     for start in range(0, len(query_ids), batch_size):
@@ -51,12 +60,21 @@ def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128
             row = scores[offset]
             cutoff = np.partition(row, len(row) - k)[len(row) - k]
             above = ids[row > cutoff]
-            tied = ids[row == cutoff][: k - len(above)]
+            all_tied = ids[row == cutoff]
+            tie_slots = k - len(above)
+            tied = all_tied[:tie_slots]
             exact = set(np.concatenate((above, tied)).tolist())
-            approximate = set(np.asarray(candidates[row_id])[:k].tolist())
-            recalls.append(len(exact & approximate) / k)
+            approximate_ids = np.asarray(candidates[row_id])[:k]
+            approximate = set(approximate_ids.tolist())
+            strict_recalls.append(len(exact & approximate) / k)
+            approximate_scores = row[approximate_ids]
+            above_hits = int(np.sum(approximate_scores > cutoff))
+            tied_hits = int(np.sum(approximate_scores == cutoff))
+            recalls.append((above_hits + min(tied_hits, tie_slots)) / k)
+            tied_queries += int(len(all_tied) > tie_slots)
         recall_progress.update(min(start + len(rows), len(query_ids)))
     values = np.asarray(recalls)
+    strict_values = np.asarray(strict_recalls)
     return {
         "k": k,
         "queries": len(query_ids),
@@ -64,6 +82,10 @@ def exact_recall(embeddings, candidates, *, k, query_count, seed, batch_size=128
         "mean": float(values.mean()),
         "std": float(values.std()),
         "minimum": float(values.min()),
+        "tie_policy": "any item tied at the exact kth score is relevant",
+        "tied_queries": tied_queries,
+        "strict_mean": float(strict_values.mean()),
+        "strict_minimum": float(strict_values.min()),
     }
 
 
@@ -85,6 +107,7 @@ def run_core(args) -> dict:
     documents, raw, reference, audit = load_artifact(
         args.artifact, cache=migrated, require_documents=False
     )
+    validate_protocol_artifact(audit, config, args.dataset)
     expected_shape = (definition["documents"], definition["dimensions"])
     if raw.shape != expected_shape or np.unique(reference).size != definition["classes"]:
         raise ValueError(

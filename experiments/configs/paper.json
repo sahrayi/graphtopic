@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "protocol_id": "graphtopic-paper-v1",
+  "protocol_id": "graphtopic-paper-v2-clean-20newsgroups",
   "models": {
     "primary": {
       "id": "sentence-transformers/all-MiniLM-L6-v2",
@@ -12,7 +12,11 @@
     }
   },
   "sources": {
-    "20newsgroups": {"provider": "scikit-learn", "subset": "all", "remove": []},
+    "20newsgroups": {
+      "provider": "scikit-learn",
+      "subset": "all",
+      "remove": ["headers", "footers", "quotes"]
+    },
     "agnews": {
       "provider": "huggingface",
       "id": "fancyzhx/ag_news",
@@ -69,7 +73,24 @@
     "max_df": 0.95,
     "max_features": 20000
   },
-  "scaling": {"agnews_sizes": [10000, 25000, 50000, 100000, 127600], "repeats": 3},
+  "scaling": {
+    "agnews_sizes": [10000, 25000, 50000, 100000, 127600],
+    "exact_comparison_sizes": [10000, 25000],
+    "repeats": 3
+  },
+  "qualitative": {
+    "topics_per_dataset": 2,
+    "representative_documents": 1,
+    "excerpt_characters": 240,
+    "20newsgroups": {"resolution": 1.0, "seed": 11},
+    "agnews": {"resolution": 0.1, "seed": 11}
+  },
+  "graph2topic": {
+    "package": "graph2topictm==2.0",
+    "dataset": "20newsgroups",
+    "dim_size": 5,
+    "graph_method": "greedy_modularity"
+  },
   "ablations": {
     "k_values": [5, 10, 20, 30],
     "resolutions": [0.1, 0.2, 0.5, 1.0, 2.0],

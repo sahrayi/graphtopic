@@ -12,7 +12,15 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
-from .common import atomic_json, load_artifact, load_texts, read_json
+from .common import (
+    artifact_root,
+    atomic_json,
+    load_artifact,
+    load_texts,
+    read_json,
+    result_root,
+    validate_protocol_artifact,
+)
 from .metrics import external_scores
 from .progress import Progress, status
 
@@ -84,6 +92,7 @@ def run_classical(args):
         cache=args.cache / args.dataset / "artifact.npz",
         require_documents=False,
     )
+    validate_protocol_artifact(audit, config, args.dataset)
     if not audit["documents_available"]:
         if args.text_csv is None:
             raise ValueError("--text-csv is required when the artifact has no documents")
@@ -181,11 +190,12 @@ def run_bertopic(args):
         raise RuntimeError("install the 'experiments' extra to run BERTopic") from error
     config = read_json(args.config)
     definition = config["datasets"][args.dataset]
-    documents, embeddings, reference, _ = load_artifact(
+    documents, embeddings, reference, audit = load_artifact(
         args.artifact,
         cache=args.cache / args.dataset / "artifact.npz",
         require_documents=False,
     )
+    validate_protocol_artifact(audit, config, args.dataset)
     if not any(documents):
         if args.text_csv is None:
             raise ValueError("--text-csv is required when the artifact has no documents")
@@ -294,8 +304,8 @@ def main(argv=None):
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--text-csv", type=Path)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
-    parser.add_argument("--results", type=Path, default=ROOT / "results")
-    parser.add_argument("--cache", type=Path, default=ROOT / "artifacts" / "cache")
+    parser.add_argument("--results", type=Path, default=result_root())
+    parser.add_argument("--cache", type=Path, default=artifact_root() / "cache")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args(argv)
     (run_classical if args.method == "classical" else run_bertopic)(args)

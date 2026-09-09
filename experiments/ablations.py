@@ -13,7 +13,14 @@ from graphtopic import LeidenDetector, NNDescentSearch, UnionMaxGraph
 from graphtopic._validation import normalize_embeddings
 from graphtopic.results import DocumentGraph
 
-from .common import atomic_json, load_artifact, read_json
+from .common import (
+    artifact_root,
+    atomic_json,
+    load_artifact,
+    read_json,
+    result_root,
+    validate_protocol_artifact,
+)
 from .metrics import external_scores
 from .progress import Progress, status
 
@@ -84,8 +91,8 @@ def main(argv=None):
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--encoder-label", default="all-MiniLM-L6-v2")
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
-    parser.add_argument("--results", type=Path, default=ROOT / "results" / "ablations")
-    parser.add_argument("--cache", type=Path, default=ROOT / "artifacts" / "cache")
+    parser.add_argument("--results", type=Path, default=result_root() / "ablations")
+    parser.add_argument("--cache", type=Path, default=artifact_root() / "cache")
     args = parser.parse_args(argv)
     config = read_json(args.config)
     status(f"Loading artifact for {args.experiment} on {args.dataset}")
@@ -94,6 +101,8 @@ def main(argv=None):
         cache=args.cache / args.dataset / f"{args.encoder_label}-artifact.npz",
         require_documents=False,
     )
+    model_key = "alternate" if args.experiment == "encoder" else "primary"
+    validate_protocol_artifact(audit, config, args.dataset, model_key=model_key)
     embeddings = normalize_embeddings(raw, len(documents))
     ann = config["ann"]
     status("Building shared NNDescent candidates")

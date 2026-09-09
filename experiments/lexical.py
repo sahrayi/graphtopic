@@ -9,7 +9,14 @@ from pathlib import Path
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 
-from .common import atomic_json, load_artifact, load_texts, read_json
+from .common import (
+    artifact_root,
+    atomic_json,
+    load_artifact,
+    load_texts,
+    read_json,
+    validate_protocol_artifact,
+)
 from .metrics import lexical_scores, topic_words_from_counts
 from .progress import Progress, status
 
@@ -27,16 +34,21 @@ def main(argv=None):
     parser.add_argument("--output", type=Path)
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
-    parser.add_argument("--cache", type=Path, default=ROOT / "artifacts" / "lexical-artifact.npz")
+    parser.add_argument("--cache", type=Path, default=artifact_root() / "lexical-artifact.npz")
     args = parser.parse_args(argv)
     status("Loading documents for lexical audit")
     documents, _, _, audit = load_artifact(args.artifact, cache=args.cache, require_documents=False)
+    config = read_json(args.config)
+    dataset = audit.get("dataset")
+    if dataset not in config["datasets"]:
+        raise ValueError("artifact dataset is missing or unknown to the active paper protocol")
+    validate_protocol_artifact(audit, config, dataset)
     if not audit["documents_available"]:
         if args.text_csv is None:
             raise ValueError("--text-csv is required when the artifact has no documents")
         documents, text_audit = load_texts(args.text_csv)
         audit["text_source"] = text_audit
-    vectorizer_config = read_json(args.config)["vectorizer"]
+    vectorizer_config = config["vectorizer"]
     vectorizer = CountVectorizer(**vectorizer_config)
     status(f"Vectorizing {len(documents):,} documents for the shared lexical audit")
     counts = vectorizer.fit_transform(documents).tocsr()
@@ -54,6 +66,7 @@ def main(argv=None):
             ("assignments/*.npz", "labels"),
             ("baselines/assignments/*.npz", "labels"),
             ("bertopic/assignments/topics-*.npz", "reassigned"),
+            ("graph2topic/assignments/topics-*.npz", "reassigned"),
         )
         for pattern, key in patterns:
             for assignment in sorted(args.assignment_root.glob(pattern)):

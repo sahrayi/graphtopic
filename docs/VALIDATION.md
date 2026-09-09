@@ -1,9 +1,11 @@
 # Development validation
 
-The development suite was validated locally on September 7, 2026. The controlled
-paper suite completed on September 8, 2026 under Windows and Python 3.14.6 for the
-GraphTopic 0.1.0 release candidate. This records observed checks, not unexecuted CI
-results.
+The development suite was validated locally on September 7, 2026. The first controlled
+paper suite completed on September 8, 2026 under Windows and Python 3.14.6 using the
+scientific pipeline later released unchanged in GraphTopic 0.1.1. On September 9,
+2026, the paper-v2 protocol completed after removing headers, footers, and quoted
+text from 20 Newsgroups. Its reconciled report was promoted and independently
+compared without failures. This file records observed checks, not unexecuted results.
 
 ## Results
 
@@ -67,15 +69,22 @@ Install the wheel into a separate virtual environment and run both offline examp
 with `python -I` to verify the installed package rather than the editable source.
 The CI workflow performs wheel smoke checks after uninstalling the editable package.
 
-## Remaining release checks
+## Published release and current paper follow-up
 
-- GitHub's configured Linux/Windows and Python 3.11–3.13 matrix has not run yet.
-- The pinned lower-bound combination passed locally on Python 3.11; its Linux CI job
-  has not run on GitHub yet.
-- All 17 self-bootstrapping paper stages completed in the locked reference environment.
+- GraphTopic 0.1.1 is published on GitHub and PyPI. Its configured release checks,
+  package upload, clean PyPI installation, and installed-package example were completed.
+- All 17 paper-v1 self-bootstrapping stages completed in the locked reference environment.
   The compact report was promoted, its independent comparison passed, residual
   BERTopic outliers are forbidden, and the LaTeX manuscript was reconciled with the
   controlled public-data results.
-- No GitHub push, package upload, or installation from a new PyPI release occurred.
+- All 23 paper-v2 runner stages completed. Unchanged controlled AG News and DBpedia14
+  artifacts were reused only after source/model validation; every affected 20
+  Newsgroups stage was rerun from cleaned text.
+- Ten official Graph2Topic 2.0 runs completed in an isolated Python 3.9.13 environment.
+  The shared lexical audit then processed their complete assignments.
+- The paper-v2 candidate includes tie-aware and strict ANN recall, five-seed uncertainty,
+  exact-search timings, and prespecified qualitative examples. It was reconciled with
+  the LaTeX source, promoted, and `experiments.report compare` passed with no failures.
 
-These are release/integration follow-ups, not claims of completed validation.
+The published package validation and paper-v2 experimental validation are separate
+records; neither is used as a substitute for the other.

@@ -13,6 +13,26 @@ import pandas as pd
 
 from .progress import Progress
 
+ROOT = Path(__file__).resolve().parent
+DEFAULT_CONFIG = ROOT / "configs" / "paper.json"
+
+
+def protocol_id(config_path: Path = DEFAULT_CONFIG) -> str:
+    """Return a filesystem-safe identifier for the active frozen protocol."""
+    value = json.loads(config_path.read_text(encoding="utf-8"))["protocol_id"]
+    allowed = "abcdefghijklmnopqrstuvwxyz0123456789-_"
+    if not value or any(character not in allowed for character in value):
+        raise ValueError("protocol_id must contain only lowercase letters, digits, '-' and '_'")
+    return value
+
+
+def artifact_root(config_path: Path = DEFAULT_CONFIG) -> Path:
+    return ROOT / "artifacts" / protocol_id(config_path)
+
+
+def result_root(config_path: Path = DEFAULT_CONFIG) -> Path:
+    return ROOT / "results" / protocol_id(config_path)
+
 
 def file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -129,7 +149,7 @@ def _from_directory(path):
         documents = [json.loads(line) for line in stream]
     embeddings = np.load(required["embeddings"], mmap_mode="r", allow_pickle=False)
     labels = np.load(required["labels"], allow_pickle=False)
-    return _validate(
+    result = _validate(
         documents,
         embeddings,
         labels,
@@ -137,6 +157,38 @@ def _from_directory(path):
         metadata["embeddings_sha256"],
         "directory",
     )
+    result[3].update(
+        protocol_id=metadata.get("protocol_id"),
+        dataset=metadata.get("dataset"),
+        source=metadata.get("source"),
+        model=metadata.get("model"),
+    )
+    return result
+
+
+def validate_protocol_artifact(audit, config, dataset, *, model_key="primary"):
+    """Reject artifacts with incompatible data preparation or embeddings.
+
+    A protocol revision may leave a dataset unchanged. Such artifacts remain valid
+    when their pinned source/preprocessing and encoder records match exactly.
+    """
+    if not all(key in config for key in ("protocol_id", "sources", "models")):
+        return
+    expected = {
+        "dataset": dataset,
+        "source": config["sources"][dataset],
+        "model": config["models"][model_key],
+    }
+    missing = [key for key in expected if audit.get(key) is None]
+    if missing:
+        raise ValueError(
+            "paper artifacts require generated provenance metadata; missing " + ", ".join(missing)
+        )
+    mismatched = [key for key, value in expected.items() if audit.get(key) != value]
+    if mismatched:
+        raise ValueError(
+            "artifact does not match the active paper protocol: " + ", ".join(mismatched)
+        )
 
 
 def _from_npz(data, path, source_hash, artifact_format, require_documents=True):
