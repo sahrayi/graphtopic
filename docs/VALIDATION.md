@@ -100,3 +100,13 @@ embeddings were regenerated because the available archived artifact predated met
 removal. The refreshed aggregate was reconciled with the LaTeX manuscript, promoted,
 and independently compared without failures. The promoted paper-v3 report is now the
 current manuscript oracle; paper-v2 remains a historical record.
+
+More specifically, the primary cleaned 20 Newsgroups embeddings were regenerated in
+paper-v3, whereas the AG News embedding file was carried forward byte-for-byte after
+source, encoder revision, and all artifact checksums were verified. DBpedia14 and the
+alternate-encoder 20 Newsgroups experiment were not rerun because neither their inputs
+nor downstream computations changed; their validated paper-v2 aggregate sections were
+retained. For carried or retained artifacts, the previously implicit maximum sequence
+lengths (256 for the pinned primary model and 128 for the pinned alternate model) were
+verified from the pinned model configurations and then recorded explicitly in the
+paper-v3 metadata. This metadata extension does not represent fresh embedding runs.
