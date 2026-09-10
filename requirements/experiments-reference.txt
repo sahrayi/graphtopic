@@ -1,7 +1,7 @@
 # Reference environment for paper-quality metrics. Use Python 3.14.6.
 --only-binary=pyarrow
-numpy==2.5.2
-scipy==1.18.1
+numpy==2.4.6
+scipy==1.17.1
 scikit-learn==1.9.0
 pandas==3.0.5
 pynndescent==0.6.0
@@ -15,7 +15,7 @@ tokenizers==0.23.2
 torch==2.14.0
 safetensors==0.8.0
 huggingface-hub==1.30.0
-pyarrow==22.0.0
+pyarrow==25.0.1
 bertopic==0.17.4
 umap-learn==0.5.12
 hdbscan==0.8.44
