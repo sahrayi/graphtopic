@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source": "paper-supplement-v1 independent",
+  "inputs": {"20newsgroups": "d1d185f81b8e9eb2c83ceed43ed8499063f6bae0b953af53146ef0453363d869", "agnews": "4709e80a814fc9075ed3884ae9745124576d1a00c6d808bbd225e22f9bb5e254"},
+  "selection": {"20newsgroups": {"target": 20, "resolution": 1.0, "pilot_topics": 17}, "agnews": {"target": 4, "resolution": 0.063, "pilot_topics": 3}},
+  "rows": [
+    {"dataset":"20newsgroups","target_topics":20,"method":"GraphTopic","topics":{"mean":18.2,"std":0.8366600265340756},"ari":{"mean":0.37250991982752346,"std":0.0062128980625806105},"nmi":{"mean":0.5362160804463307,"std":0.0031439264594183276}},
+    {"dataset":"20newsgroups","target_topics":20,"method":"MiniBatchKMeans","topics":{"mean":20.0,"std":0.0},"ari":{"mean":0.3137349152227944,"std":0.008994581070726183},"nmi":{"mean":0.4821688518579917,"std":0.006716987285423243}},
+    {"dataset":"20newsgroups","target_topics":20,"method":"NMF","topics":{"mean":20.0,"std":0.0},"ari":{"mean":0.16112765364190046,"std":0.009779185216190553},"nmi":{"mean":0.279431102171567,"std":0.011108902142591005}},
+    {"dataset":"20newsgroups","target_topics":20,"method":"LDA","topics":{"mean":20.0,"std":0.0},"ari":{"mean":0.11393653023132647,"std":0.02488620656921814},"nmi":{"mean":0.31001672327658836,"std":0.029685935029557967}},
+    {"dataset":"20newsgroups","target_topics":20,"method":"BERTopic","topics":{"mean":20.0,"std":0.0},"ari":{"mean":0.28135430787921656,"std":0.024411944200679193},"nmi":{"mean":0.4789698392181922,"std":0.011655482323071942},"native_coverage":{"mean":0.6424917754430648,"std":0.011906615069297587}},
+    {"dataset":"agnews","target_topics":4,"method":"GraphTopic","topics":{"mean":2.8,"std":0.4472135954999579},"ari":{"mean":0.49104183628324494,"std":0.10151430868995925},"nmi":{"mean":0.5991338575792248,"std":0.05701184103596423}},
+    {"dataset":"agnews","target_topics":4,"method":"MiniBatchKMeans","topics":{"mean":4.0,"std":0.0},"ari":{"mean":0.5604950342162386,"std":0.07710956101903903},"nmi":{"mean":0.5589011213564188,"std":0.0374049939553967}},
+    {"dataset":"agnews","target_topics":4,"method":"NMF","topics":{"mean":4.0,"std":0.0},"ari":{"mean":0.1987364023888631,"std":0.000011118251883455816},"nmi":{"mean":0.22119356894910683,"std":0.000012036683358939722}},
+    {"dataset":"agnews","target_topics":4,"method":"LDA","topics":{"mean":4.0,"std":0.0},"ari":{"mean":0.3373435665656842,"std":0.10274522892547945},"nmi":{"mean":0.37888324665384887,"std":0.08481773342538017}},
+    {"dataset":"agnews","target_topics":4,"method":"BERTopic","topics":{"mean":4.0,"std":0.0},"ari":{"mean":0.5363412681292503,"std":0.014355321492673517},"nmi":{"mean":0.5667539971196108,"std":0.010310077038955215},"native_coverage":{"mean":0.7149247648902822,"std":0.0036308389214712512}}
+  ]
+}

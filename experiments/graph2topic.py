@@ -227,12 +227,17 @@ def main(argv=None):
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--only-target", type=int)
     parser.add_argument("--only-seed", type=int)
+    parser.add_argument("--target-topics", type=int, action="append")
     args = parser.parse_args(argv)
     environment = _environment()
     config = _read_json(args.config)
     documents, embeddings, reference, metadata = _load_artifact(args.artifact, config)
     settings = config["graph2topic"]
-    targets = _targets(args.results, config["datasets"]["20newsgroups"]["resolutions"])
+    targets = args.target_topics or _targets(
+        args.results, config["datasets"]["20newsgroups"]["resolutions"]
+    )
+    if any(target < 2 for target in targets):
+        parser.error("--target-topics must be at least 2")
     if args.only_target is not None:
         if args.only_target not in targets:
             parser.error(f"--only-target must be one of {targets}")

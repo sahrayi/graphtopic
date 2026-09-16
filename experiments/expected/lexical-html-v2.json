@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "lexical_cleaning": "html-entities-v2",
+  "inputs": {"20newsgroups": "d1d185f81b8e9eb2c83ceed43ed8499063f6bae0b953af53146ef0453363d869", "agnews": "4709e80a814fc9075ed3884ae9745124576d1a00c6d808bbd225e22f9bb5e254"},
+  "metrics": {
+    "20newsgroups": {
+      "graphtopic|gamma-1": [0.158135, 0.266108, 0.825982], "graphtopic|gamma-2": [0.232649, 0.306518, 0.824320],
+      "bertopic|topics-18": [0.296528, 0.286099, 0.892222], "bertopic|topics-30": [0.264023, 0.289929, 0.881333],
+      "baselines|MiniBatchKMeans-topics-18": [0.239621, 0.252635, 0.823333], "baselines|MiniBatchKMeans-topics-30": [0.285585, 0.286848, 0.777333],
+      "baselines|NMF-topics-18": [0.339270, 0.283292, 0.826667], "baselines|NMF-topics-30": [0.305462, 0.280081, 0.739333],
+      "baselines|LDA-topics-18": [0.270207, 0.246815, 0.944444], "baselines|LDA-topics-30": [0.211508, 0.250931, 0.942759]
+    },
+    "agnews": {
+      "graphtopic|gamma-0.1": [0.074040, 0.075777, 0.873333], "graphtopic|gamma-0.2": [0.130991, 0.112682, 0.820238],
+      "bertopic|topics-3": [0.082503, 0.079243, 0.860000], "bertopic|topics-7": [0.126833, 0.102884, 0.834286],
+      "baselines|MiniBatchKMeans-topics-3": [0.084505, 0.078693, 0.853333], "baselines|MiniBatchKMeans-topics-7": [0.117761, 0.111988, 0.814286],
+      "baselines|NMF-topics-3": [0.108917, -0.012023, 0.733333], "baselines|NMF-topics-7": [0.133321, 0.123884, 0.728571],
+      "baselines|LDA-topics-3": [0.061761, 0.062744, 0.840000], "baselines|LDA-topics-7": [0.129967, 0.126751, 0.811429]
+    }
+  }
+}

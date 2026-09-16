@@ -23,6 +23,7 @@ from .common import (
 )
 from .metrics import external_scores
 from .progress import Progress, status
+from .run import _cache_key
 
 ROOT = Path(__file__).resolve().parent
 
@@ -105,14 +106,25 @@ def main(argv=None):
     validate_protocol_artifact(audit, config, args.dataset, model_key=model_key)
     embeddings = normalize_embeddings(raw, len(documents))
     ann = config["ann"]
-    status("Building shared NNDescent candidates")
-    candidates = NNDescentSearch(
-        config["candidate_neighbors"],
-        random_state=ann["random_state"],
-        n_trees=ann["n_trees"],
-        n_iters=ann["n_iters"],
-        n_jobs=ann["n_jobs"],
-    ).search(embeddings)
+    candidate_path = args.cache / args.dataset / f"candidates-{_cache_key(audit, config)}.npz"
+    if candidate_path.exists():
+        status("Reusing shared NNDescent candidates")
+        with np.load(candidate_path, allow_pickle=False) as saved:
+            candidates = saved["indices"]
+    else:
+        status("Building shared NNDescent candidates")
+        candidates = np.asarray(
+            NNDescentSearch(
+                config["candidate_neighbors"],
+                random_state=ann["random_state"],
+                n_trees=ann["n_trees"],
+                n_iters=ann["n_iters"],
+                n_jobs=ann["n_jobs"],
+            ).search(embeddings),
+            dtype=np.int32,
+        )
+        candidate_path.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(candidate_path, indices=candidates)
     status("Shared ANN candidates complete")
     output = args.results / args.experiment / args.dataset / args.encoder_label
     seeds = config["leiden_seeds"]

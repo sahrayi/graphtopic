@@ -1,0 +1,957 @@
+{
+  "audited_terms": 62,
+  "documents": 127600,
+  "runs": [
+    {
+      "npmi_document_weighted": 0.011084582854690227,
+      "npmi_macro": 0.30169241729735224,
+      "per_topic": [
+        {
+          "documents": 104438,
+          "npmi": -0.06801976592973549,
+          "topic": 0
+        },
+        {
+          "documents": 6265,
+          "npmi": 0.7453140729596158,
+          "topic": 1
+        },
+        {
+          "documents": 16897,
+          "npmi": 0.22778294486217646,
+          "topic": 2
+        }
+      ],
+      "run": "NMF-topics-3-seed-11",
+      "topic_diversity": 0.9,
+      "topic_words": {
+        "0": [
+          "39",
+          "ap",
+          "new",
+          "said",
+          "quot",
+          "world",
+          "year",
+          "reuters",
+          "iraq",
+          "microsoft"
+        ],
+        "1": [
+          "gt",
+          "lt",
+          "fullquote",
+          "com",
+          "reuters",
+          "http",
+          "www",
+          "href",
+          "ticker",
+          "investor"
+        ],
+        "2": [
+          "oil",
+          "reuters",
+          "prices",
+          "percent",
+          "stocks",
+          "new",
+          "quarter",
+          "sales",
+          "profit",
+          "dollar"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.011100810276128652,
+      "npmi_macro": 0.30169241729735224,
+      "per_topic": [
+        {
+          "documents": 104431,
+          "npmi": -0.06801976592973549,
+          "topic": 0
+        },
+        {
+          "documents": 6265,
+          "npmi": 0.7453140729596158,
+          "topic": 1
+        },
+        {
+          "documents": 16904,
+          "npmi": 0.22778294486217646,
+          "topic": 2
+        }
+      ],
+      "run": "NMF-topics-3-seed-23",
+      "topic_diversity": 0.9,
+      "topic_words": {
+        "0": [
+          "39",
+          "ap",
+          "new",
+          "said",
+          "quot",
+          "world",
+          "year",
+          "reuters",
+          "iraq",
+          "microsoft"
+        ],
+        "1": [
+          "gt",
+          "lt",
+          "fullquote",
+          "com",
+          "reuters",
+          "http",
+          "www",
+          "href",
+          "ticker",
+          "investor"
+        ],
+        "2": [
+          "oil",
+          "reuters",
+          "prices",
+          "percent",
+          "stocks",
+          "new",
+          "quarter",
+          "sales",
+          "profit",
+          "dollar"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.01109327514739933,
+      "npmi_macro": 0.30169241729735224,
+      "per_topic": [
+        {
+          "documents": 104436,
+          "npmi": -0.06801976592973549,
+          "topic": 0
+        },
+        {
+          "documents": 6266,
+          "npmi": 0.7453140729596158,
+          "topic": 1
+        },
+        {
+          "documents": 16898,
+          "npmi": 0.22778294486217646,
+          "topic": 2
+        }
+      ],
+      "run": "NMF-topics-3-seed-37",
+      "topic_diversity": 0.9,
+      "topic_words": {
+        "0": [
+          "39",
+          "ap",
+          "new",
+          "said",
+          "quot",
+          "world",
+          "year",
+          "reuters",
+          "iraq",
+          "microsoft"
+        ],
+        "1": [
+          "gt",
+          "lt",
+          "fullquote",
+          "com",
+          "reuters",
+          "http",
+          "www",
+          "href",
+          "ticker",
+          "investor"
+        ],
+        "2": [
+          "oil",
+          "reuters",
+          "prices",
+          "percent",
+          "stocks",
+          "new",
+          "quarter",
+          "sales",
+          "profit",
+          "dollar"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.011096173870003391,
+      "npmi_macro": 0.30169241729735224,
+      "per_topic": [
+        {
+          "documents": 104433,
+          "npmi": -0.06801976592973549,
+          "topic": 0
+        },
+        {
+          "documents": 6265,
+          "npmi": 0.7453140729596158,
+          "topic": 1
+        },
+        {
+          "documents": 16902,
+          "npmi": 0.22778294486217646,
+          "topic": 2
+        }
+      ],
+      "run": "NMF-topics-3-seed-51",
+      "topic_diversity": 0.9,
+      "topic_words": {
+        "0": [
+          "39",
+          "ap",
+          "new",
+          "said",
+          "quot",
+          "world",
+          "year",
+          "reuters",
+          "iraq",
+          "microsoft"
+        ],
+        "1": [
+          "gt",
+          "lt",
+          "fullquote",
+          "com",
+          "reuters",
+          "http",
+          "www",
+          "href",
+          "ticker",
+          "investor"
+        ],
+        "2": [
+          "oil",
+          "reuters",
+          "prices",
+          "percent",
+          "stocks",
+          "new",
+          "quarter",
+          "sales",
+          "profit",
+          "dollar"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.011084582854690227,
+      "npmi_macro": 0.30169241729735224,
+      "per_topic": [
+        {
+          "documents": 104438,
+          "npmi": -0.06801976592973549,
+          "topic": 0
+        },
+        {
+          "documents": 6265,
+          "npmi": 0.7453140729596158,
+          "topic": 1
+        },
+        {
+          "documents": 16897,
+          "npmi": 0.22778294486217646,
+          "topic": 2
+        }
+      ],
+      "run": "NMF-topics-3-seed-71",
+      "topic_diversity": 0.9,
+      "topic_words": {
+        "0": [
+          "39",
+          "ap",
+          "new",
+          "said",
+          "quot",
+          "world",
+          "year",
+          "reuters",
+          "iraq",
+          "microsoft"
+        ],
+        "1": [
+          "gt",
+          "lt",
+          "fullquote",
+          "com",
+          "reuters",
+          "http",
+          "www",
+          "href",
+          "ticker",
+          "investor"
+        ],
+        "2": [
+          "oil",
+          "reuters",
+          "prices",
+          "percent",
+          "stocks",
+          "new",
+          "quarter",
+          "sales",
+          "profit",
+          "dollar"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.13395250739227313,
+      "npmi_macro": 0.2802310622791708,
+      "per_topic": [
+        {
+          "documents": 34537,
+          "npmi": 0.0690233522856709,
+          "topic": 0
+        },
+        {
+          "documents": 4008,
+          "npmi": 0.7194408005256534,
+          "topic": 1
+        },
+        {
+          "documents": 9870,
+          "npmi": 0.2985602547809771,
+          "topic": 2
+        },
+        {
+          "documents": 28137,
+          "npmi": 0.07124347352316898,
+          "topic": 3
+        },
+        {
+          "documents": 11599,
+          "npmi": 0.13012292052234253,
+          "topic": 4
+        },
+        {
+          "documents": 35683,
+          "npmi": 0.08863386620525789,
+          "topic": 5
+        },
+        {
+          "documents": 3766,
+          "npmi": 0.5845927681111244,
+          "topic": 6
+        }
+      ],
+      "run": "NMF-topics-7-seed-11",
+      "topic_diversity": 0.8,
+      "topic_words": {
+        "0": [
+          "39",
+          "quot",
+          "game",
+          "world",
+          "team",
+          "win",
+          "season",
+          "cup",
+          "new",
+          "league"
+        ],
+        "1": [
+          "fullquote",
+          "reuters",
+          "gt",
+          "lt",
+          "com",
+          "ticker",
+          "www",
+          "http",
+          "stocks",
+          "href"
+        ],
+        "2": [
+          "oil",
+          "prices",
+          "stocks",
+          "reuters",
+          "dollar",
+          "crude",
+          "new",
+          "record",
+          "higher",
+          "york"
+        ],
+        "3": [
+          "iraq",
+          "said",
+          "reuters",
+          "afp",
+          "killed",
+          "minister",
+          "people",
+          "39",
+          "president",
+          "baghdad"
+        ],
+        "4": [
+          "ap",
+          "bush",
+          "kerry",
+          "president",
+          "night",
+          "new",
+          "john",
+          "state",
+          "151",
+          "game"
+        ],
+        "5": [
+          "new",
+          "microsoft",
+          "company",
+          "39",
+          "software",
+          "said",
+          "corp",
+          "million",
+          "internet",
+          "search"
+        ],
+        "6": [
+          "gt",
+          "lt",
+          "font",
+          "39",
+          "color",
+          "size",
+          "666666",
+          "arial",
+          "helvetica",
+          "serif"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.13396311285962,
+      "npmi_macro": 0.2802310622791708,
+      "per_topic": [
+        {
+          "documents": 34537,
+          "npmi": 0.0690233522856709,
+          "topic": 0
+        },
+        {
+          "documents": 4014,
+          "npmi": 0.7194408005256534,
+          "topic": 1
+        },
+        {
+          "documents": 9861,
+          "npmi": 0.2985602547809771,
+          "topic": 2
+        },
+        {
+          "documents": 28135,
+          "npmi": 0.07124347352316898,
+          "topic": 3
+        },
+        {
+          "documents": 11609,
+          "npmi": 0.13012292052234253,
+          "topic": 4
+        },
+        {
+          "documents": 35680,
+          "npmi": 0.08863386620525789,
+          "topic": 5
+        },
+        {
+          "documents": 3764,
+          "npmi": 0.5845927681111244,
+          "topic": 6
+        }
+      ],
+      "run": "NMF-topics-7-seed-23",
+      "topic_diversity": 0.8,
+      "topic_words": {
+        "0": [
+          "39",
+          "quot",
+          "game",
+          "world",
+          "team",
+          "win",
+          "season",
+          "cup",
+          "new",
+          "league"
+        ],
+        "1": [
+          "fullquote",
+          "reuters",
+          "gt",
+          "lt",
+          "com",
+          "ticker",
+          "www",
+          "http",
+          "stocks",
+          "href"
+        ],
+        "2": [
+          "oil",
+          "prices",
+          "stocks",
+          "reuters",
+          "dollar",
+          "crude",
+          "new",
+          "record",
+          "higher",
+          "york"
+        ],
+        "3": [
+          "iraq",
+          "said",
+          "reuters",
+          "afp",
+          "killed",
+          "minister",
+          "people",
+          "39",
+          "president",
+          "baghdad"
+        ],
+        "4": [
+          "ap",
+          "bush",
+          "kerry",
+          "president",
+          "night",
+          "new",
+          "john",
+          "state",
+          "151",
+          "game"
+        ],
+        "5": [
+          "new",
+          "microsoft",
+          "company",
+          "39",
+          "software",
+          "said",
+          "corp",
+          "million",
+          "internet",
+          "search"
+        ],
+        "6": [
+          "gt",
+          "lt",
+          "font",
+          "39",
+          "color",
+          "size",
+          "666666",
+          "arial",
+          "helvetica",
+          "serif"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.1339684250472341,
+      "npmi_macro": 0.2802310622791708,
+      "per_topic": [
+        {
+          "documents": 34517,
+          "npmi": 0.0690233522856709,
+          "topic": 0
+        },
+        {
+          "documents": 4014,
+          "npmi": 0.7194408005256534,
+          "topic": 1
+        },
+        {
+          "documents": 9861,
+          "npmi": 0.2985602547809771,
+          "topic": 2
+        },
+        {
+          "documents": 28133,
+          "npmi": 0.07124347352316898,
+          "topic": 3
+        },
+        {
+          "documents": 11627,
+          "npmi": 0.13012292052234253,
+          "topic": 4
+        },
+        {
+          "documents": 35685,
+          "npmi": 0.08863386620525789,
+          "topic": 5
+        },
+        {
+          "documents": 3763,
+          "npmi": 0.5845927681111244,
+          "topic": 6
+        }
+      ],
+      "run": "NMF-topics-7-seed-37",
+      "topic_diversity": 0.8,
+      "topic_words": {
+        "0": [
+          "39",
+          "quot",
+          "game",
+          "world",
+          "team",
+          "win",
+          "season",
+          "cup",
+          "new",
+          "league"
+        ],
+        "1": [
+          "fullquote",
+          "reuters",
+          "gt",
+          "lt",
+          "com",
+          "ticker",
+          "www",
+          "http",
+          "stocks",
+          "href"
+        ],
+        "2": [
+          "oil",
+          "prices",
+          "stocks",
+          "reuters",
+          "dollar",
+          "crude",
+          "new",
+          "record",
+          "higher",
+          "york"
+        ],
+        "3": [
+          "iraq",
+          "said",
+          "reuters",
+          "afp",
+          "killed",
+          "minister",
+          "people",
+          "39",
+          "president",
+          "baghdad"
+        ],
+        "4": [
+          "ap",
+          "bush",
+          "kerry",
+          "president",
+          "night",
+          "new",
+          "john",
+          "state",
+          "151",
+          "game"
+        ],
+        "5": [
+          "new",
+          "microsoft",
+          "company",
+          "39",
+          "software",
+          "said",
+          "corp",
+          "million",
+          "internet",
+          "search"
+        ],
+        "6": [
+          "gt",
+          "lt",
+          "font",
+          "39",
+          "color",
+          "size",
+          "666666",
+          "arial",
+          "helvetica",
+          "serif"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.1340921311447606,
+      "npmi_macro": 0.2802310622791708,
+      "per_topic": [
+        {
+          "documents": 34489,
+          "npmi": 0.0690233522856709,
+          "topic": 0
+        },
+        {
+          "documents": 4024,
+          "npmi": 0.7194408005256534,
+          "topic": 1
+        },
+        {
+          "documents": 9887,
+          "npmi": 0.2985602547809771,
+          "topic": 2
+        },
+        {
+          "documents": 28138,
+          "npmi": 0.07124347352316898,
+          "topic": 3
+        },
+        {
+          "documents": 11641,
+          "npmi": 0.13012292052234253,
+          "topic": 4
+        },
+        {
+          "documents": 35652,
+          "npmi": 0.08863386620525789,
+          "topic": 5
+        },
+        {
+          "documents": 3769,
+          "npmi": 0.5845927681111244,
+          "topic": 6
+        }
+      ],
+      "run": "NMF-topics-7-seed-51",
+      "topic_diversity": 0.8,
+      "topic_words": {
+        "0": [
+          "39",
+          "quot",
+          "game",
+          "world",
+          "team",
+          "win",
+          "season",
+          "cup",
+          "new",
+          "league"
+        ],
+        "1": [
+          "fullquote",
+          "reuters",
+          "gt",
+          "lt",
+          "com",
+          "ticker",
+          "www",
+          "http",
+          "stocks",
+          "href"
+        ],
+        "2": [
+          "oil",
+          "prices",
+          "stocks",
+          "reuters",
+          "dollar",
+          "crude",
+          "new",
+          "record",
+          "higher",
+          "york"
+        ],
+        "3": [
+          "iraq",
+          "said",
+          "reuters",
+          "afp",
+          "killed",
+          "minister",
+          "people",
+          "39",
+          "president",
+          "baghdad"
+        ],
+        "4": [
+          "ap",
+          "bush",
+          "kerry",
+          "president",
+          "night",
+          "new",
+          "john",
+          "state",
+          "151",
+          "game"
+        ],
+        "5": [
+          "new",
+          "microsoft",
+          "company",
+          "39",
+          "software",
+          "said",
+          "corp",
+          "million",
+          "internet",
+          "search"
+        ],
+        "6": [
+          "gt",
+          "lt",
+          "font",
+          "39",
+          "color",
+          "size",
+          "666666",
+          "arial",
+          "helvetica",
+          "serif"
+        ]
+      }
+    },
+    {
+      "npmi_document_weighted": 0.13401594328018293,
+      "npmi_macro": 0.2802310622791708,
+      "per_topic": [
+        {
+          "documents": 34516,
+          "npmi": 0.0690233522856709,
+          "topic": 0
+        },
+        {
+          "documents": 4011,
+          "npmi": 0.7194408005256534,
+          "topic": 1
+        },
+        {
+          "documents": 9890,
+          "npmi": 0.2985602547809771,
+          "topic": 2
+        },
+        {
+          "documents": 28155,
+          "npmi": 0.07124347352316898,
+          "topic": 3
+        },
+        {
+          "documents": 11621,
+          "npmi": 0.13012292052234253,
+          "topic": 4
+        },
+        {
+          "documents": 35639,
+          "npmi": 0.08863386620525789,
+          "topic": 5
+        },
+        {
+          "documents": 3768,
+          "npmi": 0.5845927681111244,
+          "topic": 6
+        }
+      ],
+      "run": "NMF-topics-7-seed-71",
+      "topic_diversity": 0.8,
+      "topic_words": {
+        "0": [
+          "39",
+          "quot",
+          "game",
+          "world",
+          "team",
+          "win",
+          "season",
+          "cup",
+          "new",
+          "league"
+        ],
+        "1": [
+          "fullquote",
+          "reuters",
+          "gt",
+          "lt",
+          "com",
+          "ticker",
+          "www",
+          "http",
+          "stocks",
+          "href"
+        ],
+        "2": [
+          "oil",
+          "prices",
+          "stocks",
+          "reuters",
+          "dollar",
+          "crude",
+          "new",
+          "record",
+          "higher",
+          "york"
+        ],
+        "3": [
+          "iraq",
+          "said",
+          "reuters",
+          "afp",
+          "killed",
+          "minister",
+          "people",
+          "39",
+          "president",
+          "baghdad"
+        ],
+        "4": [
+          "ap",
+          "bush",
+          "kerry",
+          "president",
+          "night",
+          "new",
+          "john",
+          "state",
+          "151",
+          "game"
+        ],
+        "5": [
+          "new",
+          "microsoft",
+          "company",
+          "39",
+          "software",
+          "said",
+          "corp",
+          "million",
+          "internet",
+          "search"
+        ],
+        "6": [
+          "gt",
+          "lt",
+          "font",
+          "39",
+          "color",
+          "size",
+          "666666",
+          "arial",
+          "helvetica",
+          "serif"
+        ]
+      }
+    }
+  ],
+  "verified": true
+}

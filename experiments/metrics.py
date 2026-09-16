@@ -62,12 +62,13 @@ def topic_words_from_counts(counts, labels, vocabulary, *, top_n=10):
     return words
 
 
-def lexical_scores(counts, labels, topic_words, vocabulary) -> dict[str, float]:
+def lexical_scores(counts, labels, topic_words, vocabulary, *, details=False) -> dict:
     """Compute binary document-level NPMI and topic diversity."""
     binary = (counts > 0).astype(np.uint8).tocsc()
     term_to_id = {term: index for index, term in enumerate(vocabulary)}
     topic_values, topic_sizes = [], []
     for topic_id, words in topic_words.items():
+        topic_id = int(topic_id)
         scores = []
         for left, right in combinations(words, 2):
             a, b = term_to_id[left], term_to_id[right]
@@ -82,8 +83,14 @@ def lexical_scores(counts, labels, topic_words, vocabulary) -> dict[str, float]:
         topic_values.append(float(np.mean(scores)))
         topic_sizes.append(int(np.sum(np.asarray(labels) == topic_id)))
     all_words = [word for words in topic_words.values() for word in words]
-    return {
+    result = {
         "npmi_macro": float(np.mean(topic_values)),
         "npmi_document_weighted": float(np.average(topic_values, weights=topic_sizes)),
         "topic_diversity": len(set(all_words)) / len(all_words),
     }
+    if details:
+        result["per_topic"] = [
+            {"topic": int(topic), "documents": size, "npmi": value}
+            for topic, size, value in zip(topic_words, topic_sizes, topic_values, strict=True)
+        ]
+    return result

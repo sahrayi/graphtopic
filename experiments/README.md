@@ -4,6 +4,11 @@ This directory is the self-bootstrapping, checkpointed protocol for every experi
 reported in the current GraphTopic paper. It uses the public `graphtopic` package in
 `src/`; it is not a second implementation of the method.
 
+Supplementary paper revisions (independent target counts, shared-subset TriTopic,
+final-k graph ablation, lexical cleanup and full-pipeline timing) have a separate
+[protocol and run guide](../docs/paper-revision.md). They preserve the frozen results
+below until the new experiments have been run and reviewed.
+
 ## Reproducibility contract
 
 The default runner requires no pre-downloaded corpora, embeddings, or model files. On

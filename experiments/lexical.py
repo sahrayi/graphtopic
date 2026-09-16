@@ -19,6 +19,7 @@ from .common import (
 )
 from .metrics import lexical_scores, topic_words_from_counts
 from .progress import Progress, status
+from .text_cleaning import LEXICAL_CLEANING, clean_lexical_text
 
 ROOT = Path(__file__).resolve().parent
 
@@ -35,6 +36,8 @@ def main(argv=None):
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
     parser.add_argument("--cache", type=Path, default=artifact_root() / "lexical-artifact.npz")
+    parser.add_argument("--clean-html", action="store_true")
+    parser.add_argument("--details", action="store_true")
     args = parser.parse_args(argv)
     status("Loading documents for lexical audit")
     documents, _, _, audit = load_artifact(args.artifact, cache=args.cache, require_documents=False)
@@ -49,6 +52,8 @@ def main(argv=None):
         documents, text_audit = load_texts(args.text_csv)
         audit["text_source"] = text_audit
     vectorizer_config = config["vectorizer"]
+    if args.clean_html:
+        documents = [clean_lexical_text(document) for document in documents]
     vectorizer = CountVectorizer(**vectorizer_config)
     status(f"Vectorizing {len(documents):,} documents for the shared lexical audit")
     counts = vectorizer.fit_transform(documents).tocsr()
@@ -67,6 +72,7 @@ def main(argv=None):
             ("baselines/assignments/*.npz", "labels"),
             ("bertopic/assignments/topics-*.npz", "reassigned"),
             ("graph2topic/assignments/topics-*.npz", "reassigned"),
+            ("tritopic/assignments/topics-*.npz", "reassigned"),
         )
         for pattern, key in patterns:
             for assignment in sorted(args.assignment_root.glob(pattern)):
@@ -76,15 +82,20 @@ def main(argv=None):
     job_progress = Progress("Lexical assignment audits", len(jobs))
     for position, (assignment, key, output) in enumerate(jobs, start=1):
         if output.exists():
-            job_progress.update(position, "cached")
-            continue
+            previous = read_json(output)
+            cleaning = LEXICAL_CLEANING if args.clean_html else "none"
+            if previous.get("lexical_cleaning", "none") != cleaning:
+                raise ValueError("lexical cleaning changed; use a separate output directory")
+            if not args.details or "per_topic" in previous:
+                job_progress.update(position, "cached")
+                continue
         status(f"Auditing topic words and NPMI: {assignment.name}")
         with np.load(assignment, allow_pickle=False) as saved:
             labels = saved[key]
         if labels.shape != (len(documents),):
             raise ValueError(f"assignment length does not match the artifact: {assignment}")
         words = topic_words_from_counts(counts, labels, vocabulary)
-        scores = lexical_scores(counts, labels, words, vocabulary)
+        scores = lexical_scores(counts, labels, words, vocabulary, details=args.details)
         atomic_json(
             output,
             {
@@ -92,6 +103,7 @@ def main(argv=None):
                 "assignment": str(assignment.resolve()),
                 "labels_key": key,
                 "top_n_words": 10,
+                "lexical_cleaning": LEXICAL_CLEANING if args.clean_html else "none",
                 **scores,
                 "topic_words": words,
             },

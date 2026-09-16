@@ -1,0 +1,3 @@
+# Install alongside experiments-reference.txt in a separate environment.
+# The adapter records the complete resolved environment with each run.
+tritopic==2.3.0

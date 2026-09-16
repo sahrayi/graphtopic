@@ -27,7 +27,7 @@ def _excerpt(document, limit):
     return cleaned[:limit].rstrip()
 
 
-def build_examples(dataset, artifact, config_path, results):
+def build_examples(dataset, artifact, config_path, results, lexical_root=None):
     config = read_json(config_path)
     settings = config["qualitative"]
     choice = settings[dataset]
@@ -36,7 +36,7 @@ def build_examples(dataset, artifact, config_path, results):
     embeddings = normalize_embeddings(raw, len(documents))
     stem = f"gamma-{choice['resolution']:g}-seed-{choice['seed']}"
     assignment_path = results / dataset / "assignments" / f"{stem}.npz"
-    lexical_path = results / "lexical" / dataset / "assignments" / f"{stem}.json"
+    lexical_path = (lexical_root or results / "lexical") / dataset / "assignments" / f"{stem}.json"
     if not assignment_path.exists() or not lexical_path.exists():
         raise FileNotFoundError("run the selected core and lexical stages first")
     with np.load(assignment_path, allow_pickle=False) as saved:
@@ -93,11 +93,13 @@ def main(argv=None):
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "paper.json")
     parser.add_argument("--results", type=Path, default=result_root())
+    parser.add_argument("--lexical-root", type=Path)
+    parser.add_argument("--output-root", type=Path)
     args = parser.parse_args(argv)
-    output = args.results / "qualitative" / f"{args.dataset}.json"
+    output = (args.output_root or args.results / "qualitative") / f"{args.dataset}.json"
     atomic_json(
         output,
-        build_examples(args.dataset, args.artifact, args.config, args.results),
+        build_examples(args.dataset, args.artifact, args.config, args.results, args.lexical_root),
     )
     print(json.dumps({"complete": True, "output": str(output.resolve())}))
     return 0

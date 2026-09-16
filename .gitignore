@@ -9,6 +9,7 @@ htmlcov/
 .venv/
 .paper-venv/
 .graph2topic-venv/
+.tritopic-venv/
 .release-venv/
 .wheel-smoke-venv/
 venv/

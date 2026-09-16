@@ -108,11 +108,15 @@ def run_classical(args):
     status("Building shared TF-IDF matrix")
     tfidf = TfidfTransformer(sublinear_tf=True).fit_transform(counts)
     output = args.results / args.dataset / "baselines"
-    matched_topics = reference_topics(args.results, args.dataset, definition["resolutions"])
+    explicit = getattr(args, "target_topics", None)
+    matched_topics = explicit or reference_topics(
+        args.results, args.dataset, definition["resolutions"]
+    )
+    reference_resolutions = [None] * len(matched_topics) if explicit else definition["resolutions"]
     total = len(matched_topics) * len(config["leiden_seeds"]) * 3
     run_progress = Progress(f"Classical baselines for {args.dataset}", total)
     completed = 0
-    for resolution, topics in zip(definition["resolutions"], matched_topics, strict=True):
+    for resolution, topics in zip(reference_resolutions, matched_topics, strict=True):
         for seed in config["leiden_seeds"]:
             for method in ("MiniBatchKMeans", "NMF", "LDA"):
                 path = output / "runs" / f"{method}-topics-{topics}-seed-{seed}.json"
@@ -203,7 +207,9 @@ def run_bertopic(args):
     if len(documents) != len(embeddings):
         raise ValueError("text rows do not match embedding rows")
     targets = sorted(
-        reference_topics(args.results, args.dataset, definition["resolutions"]), reverse=True
+        getattr(args, "target_topics", None)
+        or reference_topics(args.results, args.dataset, definition["resolutions"]),
+        reverse=True,
     )
     output = args.results / args.dataset / "bertopic"
     total = len(config["leiden_seeds"]) * (1 + len(targets))
@@ -350,7 +356,15 @@ def main(argv=None):
     parser.add_argument("--results", type=Path, default=result_root())
     parser.add_argument("--cache", type=Path, default=artifact_root() / "cache")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--target-topics",
+        type=int,
+        action="append",
+        help="Independent target count; repeat for multiple counts",
+    )
     args = parser.parse_args(argv)
+    if args.target_topics and any(value < 2 for value in args.target_topics):
+        parser.error("--target-topics must be at least 2")
     (run_classical if args.method == "classical" else run_bertopic)(args)
     print(json.dumps({"completed": args.method, "dataset": args.dataset}))
 
